@@ -29,14 +29,28 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        body.AddForce(transform.right * horizontal * moveSpeed);
+        if(isGrounded)
+        {
+            body.AddForce(transform.right * horizontal * moveSpeed, ForceMode2D.Force);
+
+            body.AddForce(-transform.up * 10);
+        }
+        else
+        { //rotate player if not on the ground
+            transform.Rotate(Vector3.forward * -horizontal * 3);
+
+            if (Input.GetKey(KeyCode.Space))
+            {
+                body.AddForce(transform.up * moveSpeed * Time.deltaTime * 50);
+            }
+        }
     }
 //-------------------------------------------------
     void OnTriggerStay2D(Collider2D obj)
     {
        if (obj.CompareTag("Planet"))
        {
-            body.drag = 1f;
+            body.drag = 0.4f;
 
             float distance = Mathf.Abs(obj.GetComponent<GravityPoint>().planetRadius - Vector2.Distance(transform.position, obj.transform.position));
             if (distance < 0.6f)
@@ -54,7 +68,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (obj.CompareTag("Planet"))
         {
-            body.drag = 0.2f;
+            body.drag = 0.1f;
         }
     }
 }
