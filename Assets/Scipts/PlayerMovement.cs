@@ -5,9 +5,10 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     private Rigidbody2D body;
-    public float moveSpeed, jumpPower;
+    public float moveSpeed, maxSpeed, jumpPower;
     private bool isGrounded;
     private float horizontal;
+    [SerializeField] private ParticleSystem particleEmitter;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,16 +33,23 @@ public class PlayerMovement : MonoBehaviour
         if(isGrounded)
         {
             body.AddForce(transform.right * horizontal * moveSpeed, ForceMode2D.Force);
-
             body.AddForce(-transform.up * 10);
+            StopParticles();
         }
         else
         { //rotate player if not on the ground
             transform.Rotate(Vector3.forward * -horizontal * 3);
 
-            if (Input.GetKey(KeyCode.Space))
+    
+
+            if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxSpeed)
             {
                 body.AddForce(transform.up * moveSpeed * Time.deltaTime * 50);
+                StartParticles();
+            }
+            else
+            {
+                StopParticles();
             }
         }
     }
@@ -70,5 +78,22 @@ public class PlayerMovement : MonoBehaviour
         {
             body.drag = 0.1f;
         }
+    }
+
+    void StopParticles()// stop loop and stop particles
+    {
+        particleEmitter.loop = false; 
+        if (particleEmitter.isPlaying)
+        {
+            particleEmitter.Stop();
+        }
+    }
+    void StartParticles()// start loop and start particles
+    {
+        if (!particleEmitter.isPlaying)
+        {
+            particleEmitter.Play();
+        }
+        particleEmitter.loop = true;
     }
 }
