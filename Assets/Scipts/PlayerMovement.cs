@@ -5,46 +5,49 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     private Rigidbody2D body;
-    public float moveSpeed, maxSpeed, jumpPower;
-    private bool isGrounded;
+    public float flySpeed, maxFlySpeed, jumpPower, crashSpeed, walkSpeed, maxWalkSpeed, rotateSpeed;
+    private bool isGrounded, longGrounded;
     private float horizontal;
+    private float lastFrameVelocity;
     [SerializeField] private ParticleSystem particleEmitter;
-    // Start is called before the first frame update
+
     void Start()
     {
         body = GetComponent<Rigidbody2D>();
-        
     }
 
-    // Update is called once per frame
     void Update()
     {
-        horizontal = Input.GetAxis("Horizontal");
+        horizontal = Input.GetAxis("Horizontal"); //get A D or arrow left right
 
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
+            body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);// simple jump
             isGrounded = false;
         }
+
+        lastFrameVelocity = body.velocity.magnitude;
     }
 
     void FixedUpdate()
     {
         if(isGrounded)
         {
-            body.AddForce(transform.right * horizontal * moveSpeed, ForceMode2D.Force);
+            if (body.velocity.magnitude < maxWalkSpeed)
+            {
+                body.AddForce(transform.right * horizontal * walkSpeed, ForceMode2D.Force);
+            }
+
             body.AddForce(-transform.up * 10);
             StopParticles();
         }
         else
-        { //rotate player if not on the ground
-            transform.Rotate(Vector3.forward * -horizontal * 3);
+        { 
+            transform.Rotate(Vector3.forward * -horizontal * rotateSpeed * Time.deltaTime * 50);
 
-    
-
-            if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxSpeed)
+            if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxFlySpeed)
             {
-                body.AddForce(transform.up * moveSpeed * Time.deltaTime * 50);
+                body.AddForce(transform.up * flySpeed * Time.deltaTime * 50);
                 StartParticles();
             }
             else
@@ -53,26 +56,32 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
-//-------------------------------------------------
-    void OnTriggerStay2D(Collider2D obj)
+
+    void OnTriggerStay2D(Collider2D obj) //inside planet gravity
     {
-       if (obj.CompareTag("Planet"))
-       {
+        if (obj.CompareTag("Planet"))
+        {
             body.drag = 0.4f;
 
             float distance = Mathf.Abs(obj.GetComponent<GravityPoint>().planetRadius - Vector2.Distance(transform.position, obj.transform.position));
             if (distance < 0.6f)
             {
                 isGrounded = true;
+                if (!longGrounded)
+                {
+                    StartCoroutine(LongGrounded());
+                }
+
             }
             else
             {
                 isGrounded = false;
+                longGrounded = false;
             }
-       }
+        }
     }
 
-    void OnTriggerExit2D(Collider2D obj)
+    void OnTriggerExit2D(Collider2D obj)//exit planet gravity
     {
         if (obj.CompareTag("Planet"))
         {
@@ -80,7 +89,15 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void StopParticles()// stop loop and stop particles
+    void OnCollisionEnter2D(Collision2D obj)//crash detection
+    {
+        if (obj.collider.CompareTag("Planet") && lastFrameVelocity > crashSpeed && !longGrounded)
+        {
+            Debug.Log("Crashed");
+        }
+    }
+
+    void StopParticles() // Stop loop and stop particles
     {
         particleEmitter.loop = false; 
         if (particleEmitter.isPlaying)
@@ -88,12 +105,19 @@ public class PlayerMovement : MonoBehaviour
             particleEmitter.Stop();
         }
     }
-    void StartParticles()// start loop and start particles
+
+    void StartParticles() // Start loop and start particles
     {
         if (!particleEmitter.isPlaying)
         {
             particleEmitter.Play();
         }
         particleEmitter.loop = true;
+    }
+
+    IEnumerator LongGrounded()
+    {
+        yield return new WaitForSeconds(0.5f);
+        longGrounded = true;
     }
 }
