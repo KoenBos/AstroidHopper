@@ -1,19 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
     private Rigidbody2D body;
-    public float flySpeed, maxFlySpeed, jumpPower, crashSpeed, walkSpeed, maxWalkSpeed, rotateSpeed;
+    public float flySpeed, maxFlySpeed, jumpPower, crashSpeed, walkSpeed, maxWalkSpeed, rotateSpeed, fuelLevel, fuelMax;
     private bool isGrounded, longGrounded;
     private float horizontal;
     private float lastFrameVelocity;
     [SerializeField] private ParticleSystem particleEmitter;
+    [SerializeField] private ParticleSystem JumpParticle;
+    [SerializeField] private Slider fuelSlider;
+
 
     void Start()
     {
         body = GetComponent<Rigidbody2D>();
+        fuelSlider.maxValue = fuelMax;
+        fuelSlider.value = fuelLevel;
     }
 
     void Update()
@@ -23,10 +29,17 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);// simple jump
+            JumpParticle.Play();
             isGrounded = false;
         }
 
         lastFrameVelocity = body.velocity.magnitude;
+
+        if (longGrounded && fuelLevel < fuelMax)
+        {
+            fuelLevel += Time.deltaTime * 2;
+            fuelSlider.value = fuelLevel;
+        }
     }
 
     void FixedUpdate()
@@ -45,9 +58,11 @@ public class PlayerMovement : MonoBehaviour
         { 
             transform.Rotate(Vector3.forward * -horizontal * rotateSpeed * Time.deltaTime * 50);
 
-            if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxFlySpeed)
+            if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || Input.GetKey(KeyCode.W) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0)
             {
                 body.AddForce(transform.up * flySpeed * Time.deltaTime * 50);
+                fuelLevel -= Time.deltaTime;
+                fuelSlider.value = fuelLevel;
                 StartParticles();
             }
             else
