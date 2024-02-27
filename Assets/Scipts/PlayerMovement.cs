@@ -11,7 +11,11 @@ public class PlayerMovement : MonoBehaviour
     private float horizontal;
     private float lastFrameVelocity;
 
-    [SerializeField] private ParticleSystem particleEmitter;
+    [SerializeField] private ParticleSystem Trustparticle;
+    [SerializeField] private ParticleSystem LeftTrustparticle;
+    [SerializeField] private ParticleSystem RightTrustparticle;
+
+
     [SerializeField] private ParticleSystem JumpParticle;
     [SerializeField] private ParticleSystem ExplosionParticle;
 
@@ -65,22 +69,44 @@ public class PlayerMovement : MonoBehaviour
             }
 
             body.AddForce(-transform.up * 10);
-            StopParticles();
+            StopTrustParticles();
+            StopLeftTrustParticles();
+            StopRightTrustParticles();
         }
         else
         { 
-            transform.Rotate(Vector3.forward * -horizontal * rotateSpeed * Time.deltaTime * 50);
+
+            if (horizontal > 0 && fuelLevel > 0)
+            {
+                //rotate right
+                body.AddForce(transform.right * rotateSpeed * Time.deltaTime * 50);
+                StartLeftTrustParticles();
+            }
+            else
+            {
+                StopLeftTrustParticles();
+            }
+
+            if (horizontal < 0 && fuelLevel > 0)
+            {
+                body.AddForce(-transform.right * rotateSpeed * Time.deltaTime * 50);
+                StartRightTrustParticles();
+            }
+            else
+            {
+                StopRightTrustParticles();
+            }
 
             if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || Input.GetKey(KeyCode.W) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0)
             {
                 body.AddForce(transform.up * flySpeed * Time.deltaTime * 50);
                 fuelLevel -= Time.deltaTime;
                 fuelSlider.value = fuelLevel;
-                StartParticles();
+                StartTrustParticles();
             }
             else
             {
-                StopParticles();
+                StopTrustParticles();
             }
         }
     }
@@ -126,22 +152,58 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void StopParticles() // Stop loop and stop particles
+    void StopTrustParticles() // Stop loop and stop particles
     {
-        particleEmitter.loop = false; 
-        if (particleEmitter.isPlaying)
+        Trustparticle.loop = false; 
+        if (Trustparticle.isPlaying)
         {
-            particleEmitter.Stop();
+            Trustparticle.Stop();
         }
     }
 
-    void StartParticles() // Start loop and start particles
+    void StartTrustParticles() // Start loop and start particles
     {
-        if (!particleEmitter.isPlaying)
+        if (!Trustparticle.isPlaying)
         {
-            particleEmitter.Play();
+            Trustparticle.Play();
         }
-        particleEmitter.loop = true;
+        Trustparticle.loop = true;
+    }
+
+    void StartLeftTrustParticles() //Left Start
+    {
+        if (!LeftTrustparticle.isPlaying)
+        {
+            LeftTrustparticle.Play();
+        }
+        LeftTrustparticle.loop = true;
+    }
+
+    void StopLeftTrustParticles() //Left Stop
+    {
+        LeftTrustparticle.loop = false; 
+        if (LeftTrustparticle.isPlaying)
+        {
+            LeftTrustparticle.Stop();
+        }
+    }
+
+    void StartRightTrustParticles() // Right Start
+    {
+        if (!RightTrustparticle.isPlaying)
+        {
+            RightTrustparticle.Play();
+        }
+        RightTrustparticle.loop = true;
+    }
+
+    void StopRightTrustParticles() // Right Stop
+    {
+        RightTrustparticle.loop = false; 
+        if (RightTrustparticle.isPlaying)
+        {
+            RightTrustparticle.Stop();
+        }
     }
 
     IEnumerator LongGrounded()
