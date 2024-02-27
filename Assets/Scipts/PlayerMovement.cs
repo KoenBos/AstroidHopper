@@ -10,9 +10,13 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded, longGrounded;
     private float horizontal;
     private float lastFrameVelocity;
+
     [SerializeField] private ParticleSystem particleEmitter;
     [SerializeField] private ParticleSystem JumpParticle;
+    [SerializeField] private ParticleSystem ExplosionParticle;
+
     [SerializeField] private Slider fuelSlider;
+    [SerializeField] private GameObject speedMeterArrow;
 
 
     void Start()
@@ -39,6 +43,15 @@ public class PlayerMovement : MonoBehaviour
         {
             fuelLevel += Time.deltaTime * 2;
             fuelSlider.value = fuelLevel;
+        }
+
+        if (!isGrounded)
+        {
+        speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(0, -180, body.velocity.magnitude / maxFlySpeed));
+        }
+        else
+        {
+            speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, 0);
         }
     }
 
@@ -109,6 +122,7 @@ public class PlayerMovement : MonoBehaviour
         if (obj.collider.CompareTag("Planet") && lastFrameVelocity > crashSpeed && !longGrounded)
         {
             Debug.Log("Crashed");
+            ExplosionParticle.Play();
         }
     }
 
