@@ -41,15 +41,15 @@ public class PlayerMovement : MonoBehaviour
             isGrounded = false;
         }
 
-        lastFrameVelocity = body.velocity.magnitude;
+        lastFrameVelocity = body.velocity.magnitude; //velocity van 1 frame geleden voor crash detectie
 
-        if (longGrounded && fuelLevel < fuelMax)
+        if (longGrounded && fuelLevel < fuelMax) //bij tanken op de grond 2 fuel per seconde
         {
             fuelLevel += Time.deltaTime * 2;
             fuelSlider.value = fuelLevel;
         }
 
-        if (!isGrounded)
+        if (!isGrounded) //speedmeter pijl draaien
         {
         speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(0, -180, body.velocity.magnitude / maxFlySpeed));
         }
@@ -63,23 +63,23 @@ public class PlayerMovement : MonoBehaviour
     {
         if(isGrounded)
         {
-            if (body.velocity.magnitude < maxWalkSpeed)
+            if (body.velocity.magnitude < maxWalkSpeed) //lopen als je op de grond bent
             {
                 body.AddForce(transform.right * horizontal * walkSpeed, ForceMode2D.Force);
             }
 
-            body.AddForce(-transform.up * 10);
+            body.AddForce(-transform.up * 10); //blijven plakken op de planeet
             StopTrustParticles();
             StopLeftTrustParticles();
             StopRightTrustParticles();
         }
+        
         else
         { 
+            transform.Rotate(Vector3.forward * -horizontal * rotateSpeed * Time.deltaTime * 50); //draaien links rechts
 
-            if (horizontal > 0 && fuelLevel > 0)
+            if (horizontal > 0) //start particles als je naar rechts draait
             {
-                //rotate right
-                body.AddForce(transform.right * rotateSpeed * Time.deltaTime * 50);
                 StartLeftTrustParticles();
             }
             else
@@ -87,9 +87,8 @@ public class PlayerMovement : MonoBehaviour
                 StopLeftTrustParticles();
             }
 
-            if (horizontal < 0 && fuelLevel > 0)
+            if (horizontal < 0) //start particles als je naar links draait
             {
-                body.AddForce(-transform.right * rotateSpeed * Time.deltaTime * 50);
                 StartRightTrustParticles();
             }
             else
@@ -99,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || Input.GetKey(KeyCode.W) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0)
             {
-                body.AddForce(transform.up * flySpeed * Time.deltaTime * 50);
+                body.AddForce(transform.up * flySpeed * Time.deltaTime * 50); // main Truster
                 fuelLevel -= Time.deltaTime;
                 fuelSlider.value = fuelLevel;
                 StartTrustParticles();
@@ -118,7 +117,7 @@ public class PlayerMovement : MonoBehaviour
             body.drag = 0.4f;
 
             float distance = Mathf.Abs(obj.GetComponent<GravityPoint>().planetRadius - Vector2.Distance(transform.position, obj.transform.position));
-            if (distance < 0.6f)
+            if (distance < 0.6f) //dicht bij planeet = IsGrounded
             {
                 isGrounded = true;
                 if (!longGrounded)
@@ -206,7 +205,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    IEnumerator LongGrounded()
+    IEnumerator LongGrounded() //lang op de grond voor fuel tanken
     {
         yield return new WaitForSeconds(0.5f);
         longGrounded = true;
