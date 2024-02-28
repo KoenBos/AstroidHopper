@@ -10,10 +10,12 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded, longGrounded;
     private float horizontal;
     private float lastFrameVelocity;
-
+    private bool isAlive = true;
     [SerializeField] private ParticleSystem Trustparticle;
     [SerializeField] private ParticleSystem LeftTrustparticle;
     [SerializeField] private ParticleSystem RightTrustparticle;
+    [SerializeField] private Transform respawnPoint;
+    [SerializeField] private GameObject playerVisual;
 
 
     [SerializeField] private ParticleSystem JumpParticle;
@@ -32,81 +34,104 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        horizontal = Input.GetAxis("Horizontal"); //get A D or arrow left right
-
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);// simple jump
-            JumpParticle.Play();
-            isGrounded = false;
-        }
+        GetMovementInput();
 
         lastFrameVelocity = body.velocity.magnitude; //velocity van 1 frame geleden voor crash detectie
 
-        if (longGrounded && fuelLevel < fuelMax) //bij tanken op de grond 2 fuel per seconde
-        {
-            fuelLevel += Time.deltaTime * 2;
-            fuelSlider.value = fuelLevel;
-        }
-
         if (!isGrounded) //speedmeter pijl draaien
         {
-        speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(0, -180, body.velocity.magnitude / maxFlySpeed));
+            speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(0, -180, body.velocity.magnitude / maxFlySpeed));
         }
         else
         {
             speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, 0);
         }
+
+        if(isAlive)
+        {
+            if (Input.GetKeyDown(KeyCode.Space) && isGrounded) //Jump als je op de grond bent
+            {
+                body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
+                JumpParticle.Play();
+                isGrounded = false;
+            }
+
+            if (longGrounded && fuelLevel < fuelMax) //bij tanken op de grond 2 fuel per seconde
+            {
+                fuelLevel += Time.deltaTime * 2;
+                fuelSlider.value = fuelLevel;
+            }
+        }
+    }
+
+    public void GetMovementInput(int amount = 0)
+    {
+        if(amount != 0)
+        {
+            horizontal = amount;
+            return;
+        }
+        horizontal = Input.GetAxis("Horizontal");
     }
 
     void FixedUpdate()
     {
-        if(isGrounded)
+        if (isAlive)
         {
-            if (body.velocity.magnitude < maxWalkSpeed) //lopen als je op de grond bent
+            if(longGrounded)
             {
-                body.AddForce(transform.right * horizontal * walkSpeed, ForceMode2D.Force);
+                body.AddForce(-transform.up * 10); //blijven plakken op de planeet
             }
 
-            body.AddForce(-transform.up * 10); //blijven plakken op de planeet
-            StopTrustParticles();
-            StopLeftTrustParticles();
-            StopRightTrustParticles();
-        }
-        
-        else
-        { 
-            transform.Rotate(Vector3.forward * -horizontal * rotateSpeed * Time.deltaTime * 50); //draaien links rechts
-
-            if (horizontal > 0) //start particles als je naar rechts draait
+            if(isGrounded)
             {
-                StartLeftTrustParticles();
-            }
-            else
-            {
+                if (body.velocity.magnitude < maxWalkSpeed) //lopen als je op de grond bent
+                {
+                    body.AddForce(transform.right * horizontal * walkSpeed, ForceMode2D.Force);
+                }
+                StopTrustParticles();
                 StopLeftTrustParticles();
-            }
-
-            if (horizontal < 0) //start particles als je naar links draait
-            {
-                StartRightTrustParticles();
-            }
-            else
-            {
                 StopRightTrustParticles();
             }
+            else //als je in de lucht bent
+            { 
+                FlyingFixedUpdate();
+            }
+        }
+    }
 
-            if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || Input.GetKey(KeyCode.W) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0)
-            {
-                body.AddForce(transform.up * flySpeed * Time.deltaTime * 50); // main Truster
-                fuelLevel -= Time.deltaTime;
-                fuelSlider.value = fuelLevel;
-                StartTrustParticles();
-            }
-            else
-            {
-                StopTrustParticles();
-            }
+    void FlyingFixedUpdate()
+    {
+        transform.Rotate(Vector3.forward * -horizontal * rotateSpeed * Time.deltaTime * 50); //draaien links rechts
+
+        if (horizontal > 0) //start particles als je naar rechts draait
+        {
+            StartLeftTrustParticles();
+        }
+        else
+        {
+            StopLeftTrustParticles();
+        }
+
+        if (horizontal < 0) //start particles als je naar links draait
+        {
+            StartRightTrustParticles();
+        }
+        else
+        {
+            StopRightTrustParticles();
+        }
+
+        if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || Input.GetKey(KeyCode.W) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0)
+        {
+            body.AddForce(transform.up * flySpeed * Time.deltaTime * 50); // main Truster
+            fuelLevel -= Time.deltaTime;
+            fuelSlider.value = fuelLevel;
+            StartTrustParticles();
+        }
+        else
+        {
+            StopTrustParticles();
         }
     }
 
@@ -148,7 +173,23 @@ public class PlayerMovement : MonoBehaviour
         {
             Debug.Log("Crashed");
             ExplosionParticle.Play();
+            StartCoroutine(Die());
         }
+    }
+    IEnumerator Die()
+    {
+        isAlive = false;
+        playerVisual.SetActive(false);
+        body.velocity = Vector2.zero;
+
+        yield return new WaitForSeconds(3);
+
+        transform.position = respawnPoint.position;
+        body.velocity = Vector2.zero;
+        fuelLevel = fuelMax;
+        fuelSlider.value = fuelLevel;
+        playerVisual.SetActive(true);
+        isAlive = true;
     }
 
     void StopTrustParticles() // Stop loop and stop particles

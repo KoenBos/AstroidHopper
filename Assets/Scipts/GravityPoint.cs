@@ -15,6 +15,7 @@ public class GravityPoint : MonoBehaviour
     {
         if (isRotating)
         {
+            //rotate the planet / asteroid
             transform.Rotate(Vector3.forward * rotationSpeed * Time.deltaTime);
         }
     }
