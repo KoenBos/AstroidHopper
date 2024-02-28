@@ -11,11 +11,13 @@ public class PlayerMovement : MonoBehaviour
     private float horizontal;
     private float lastFrameVelocity;
     private bool isAlive = true;
+    private bool isTrusting = false;
     [SerializeField] private ParticleSystem Trustparticle;
     [SerializeField] private ParticleSystem LeftTrustparticle;
     [SerializeField] private ParticleSystem RightTrustparticle;
     [SerializeField] private Transform respawnPoint;
     [SerializeField] private GameObject playerVisual;
+    [SerializeField] private bool Android = true;
 
 
     [SerializeField] private ParticleSystem JumpParticle;
@@ -34,7 +36,11 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        GetMovementInput();
+        if (!Android)
+        {
+            GetMovementInput();
+        }
+        
 
         lastFrameVelocity = body.velocity.magnitude; //velocity van 1 frame geleden voor crash detectie
 
@@ -49,11 +55,14 @@ public class PlayerMovement : MonoBehaviour
 
         if(isAlive)
         {
-            if (Input.GetKeyDown(KeyCode.Space) && isGrounded) //Jump als je op de grond bent
+            if (Input.GetKeyDown(KeyCode.Space)) //Jump als je op de grond bent
             {
-                body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
-                JumpParticle.Play();
-                isGrounded = false;
+                if (isGrounded)
+                {
+                    body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
+                    JumpParticle.Play();
+                    isGrounded = false;
+                }
             }
 
             if (longGrounded && fuelLevel < fuelMax) //bij tanken op de grond 2 fuel per seconde
@@ -122,7 +131,7 @@ public class PlayerMovement : MonoBehaviour
             StopRightTrustParticles();
         }
 
-        if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || Input.GetKey(KeyCode.W) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0)
+        if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || Input.GetKey(KeyCode.W) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || isTrusting && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0)
         {
             body.AddForce(transform.up * flySpeed * Time.deltaTime * 50); // main Truster
             fuelLevel -= Time.deltaTime;
@@ -134,6 +143,22 @@ public class PlayerMovement : MonoBehaviour
             StopTrustParticles();
         }
     }
+    public void JumpTrust()
+    {
+        if (isGrounded)
+        {
+            body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
+            JumpParticle.Play();
+            isGrounded = false;
+        }
+        isTrusting = true;
+    }
+
+    public void StopTruster()
+    {
+        isTrusting = false;
+    }
+
 
     void OnTriggerStay2D(Collider2D obj) //inside planet gravity
     {
@@ -190,6 +215,12 @@ public class PlayerMovement : MonoBehaviour
         fuelSlider.value = fuelLevel;
         playerVisual.SetActive(true);
         isAlive = true;
+    }
+    
+    public void goDie()
+    {
+        ExplosionParticle.Play();
+        StartCoroutine(Die());
     }
 
     void StopTrustParticles() // Stop loop and stop particles
