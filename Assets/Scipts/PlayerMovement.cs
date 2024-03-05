@@ -145,13 +145,16 @@ public class PlayerMovement : MonoBehaviour
     }
     public void JumpTrust()
     {
-        if (isGrounded)
+        if(isAlive)
         {
-            body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
-            JumpParticle.Play();
-            isGrounded = false;
+            if (isGrounded)
+            {
+                body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
+                JumpParticle.Play();
+                isGrounded = false;
+            }
+            isTrusting = true;
         }
-        isTrusting = true;
     }
 
     public void StopTruster()
@@ -203,24 +206,30 @@ public class PlayerMovement : MonoBehaviour
     }
     IEnumerator Die()
     {
-        isAlive = false;
-        playerVisual.SetActive(false);
-        body.velocity = Vector2.zero;
+        if (isAlive)
+        {
+            isAlive = false;
+            playerVisual.SetActive(false);
+            body.velocity = Vector2.zero;
 
-        yield return new WaitForSeconds(3);
+            yield return new WaitForSeconds(3);
 
-        transform.position = respawnPoint.position;
-        body.velocity = Vector2.zero;
-        fuelLevel = fuelMax;
-        fuelSlider.value = fuelLevel;
-        playerVisual.SetActive(true);
-        isAlive = true;
+            transform.position = respawnPoint.position;
+            body.velocity = Vector2.zero;
+            fuelLevel = fuelMax;
+            fuelSlider.value = fuelLevel;
+            playerVisual.SetActive(true);
+            isAlive = true;
+        }
     }
     
     public void goDie()
     {
-        ExplosionParticle.Play();
-        StartCoroutine(Die());
+        if(isAlive)
+        {
+            ExplosionParticle.Play();
+            StartCoroutine(Die());
+        }
     }
 
     void StopTrustParticles() // Stop loop and stop particles

@@ -28,12 +28,6 @@ public class GravityPoint : MonoBehaviour
         Vector2 direction = (transform.position - obj.transform.position).normalized * gravitationalPower;
         obj.GetComponent<Rigidbody2D>().AddForce(direction);
 
-        //if rotate, rotate everything in the trigger with the planet / asteroid
-        if (isRotating)
-        {
-            obj.transform.RotateAround(transform.position, Vector3.forward, rotationSpeed * Time.deltaTime);
-        }
-
         // Rotate the player towards the planet
         if (obj.CompareTag("Player"))
         {
@@ -61,6 +55,12 @@ public class GravityPoint : MonoBehaviour
         if (dist < planetRadius + 0.8f)
         {
             player.transform.up = Vector3.MoveTowards(player.transform.up, -gravityDirection.normalized, 5 * Time.deltaTime);
+
+            //if rotating rotate the player around the planet / asteroid
+            if (isRotating)
+            {
+                player.transform.RotateAround(transform.position, Vector3.forward, rotationSpeed * Time.deltaTime);
+            }
         }
     }
 }
