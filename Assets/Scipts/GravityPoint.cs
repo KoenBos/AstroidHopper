@@ -35,6 +35,8 @@ public class GravityPoint : MonoBehaviour
         }
     }
 
+    
+
     float CalculateGravitationalPower(float dist)
     {
         if (dist > planetRadius)

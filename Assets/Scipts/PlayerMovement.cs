@@ -61,6 +61,8 @@ public class PlayerMovement : MonoBehaviour
                 {
                     body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
                     JumpParticle.Play();
+                    //shake camera with intensity 2 and time 0.5
+                    CinemachineShake.Instance.ShakeCamera(5f, 1.0f);
                     isGrounded = false;
                 }
             }
@@ -133,6 +135,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || Input.GetKey(KeyCode.W) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || isTrusting && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0)
         {
+            CinemachineShake.Instance.ShakeCamera(body.velocity.magnitude / 10, 0.1f);
             body.AddForce(transform.up * flySpeed * Time.deltaTime * 50); // main Truster
             fuelLevel -= Time.deltaTime;
             fuelSlider.value = fuelLevel;
@@ -208,6 +211,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isAlive)
         {
+            CinemachineShake.Instance.ShakeCamera(20f, 0.2f);
             isAlive = false;
             playerVisual.SetActive(false);
             body.velocity = Vector2.zero;
