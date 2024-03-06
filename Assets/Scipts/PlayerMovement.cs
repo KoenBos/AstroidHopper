@@ -73,7 +73,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void GetMovementInput(int amount = 0)
+    public void GetMovementInput(int amount = 0) //input voor toetsenbord als je niet op telefoon zit
     {
         if(amount != 0)
         {
@@ -167,7 +167,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (obj.CompareTag("Planet"))
         {
-            body.drag = 0.4f;
+            body.drag = 0.2f;
 
             float distance = Mathf.Abs(obj.GetComponent<GravityPoint>().planetRadius - Vector2.Distance(transform.position, obj.transform.position));
             if (distance < 0.6f) //dicht bij planeet = IsGrounded
@@ -191,7 +191,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (obj.CompareTag("Planet"))
         {
-            body.drag = 0.1f;
+            body.drag = 0.0f;
         }
     }
 
