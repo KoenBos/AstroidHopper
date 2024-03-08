@@ -194,7 +194,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (obj.CompareTag("Planet"))
         {
-            body.drag = 0.0f;
+            body.drag = 0.02f;
         }
     }
 
