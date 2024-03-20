@@ -122,7 +122,7 @@ MonoBehaviour:
   gravityScale: 4
   planetRadius: 1.07
   gravityMaxRange: 2.5
-  gravityFallOffStrength: 1
+  gravityFallOffStrength: 0.8
   isRotating: 0
   rotationSpeed: 100
 --- !u!1 &4052930742971834457

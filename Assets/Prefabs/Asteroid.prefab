@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5313828877105171249}
   - component: {fileID: 1900288785012098611}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MinimapIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -290,8 +290,8 @@ MonoBehaviour:
   gravityScale: 8
   planetRadius: 2.24
   gravityMaxRange: 0
-  gravityFallOffStrength: 0.7
-  isRotating: 1
+  gravityFallOffStrength: 0.8
+  isRotating: 0
   rotationSpeed: -10
 --- !u!1 &5013532510067441141
 GameObject:

@@ -6,8 +6,8 @@ using UnityEngine.UI;
 public class Player : MonoBehaviour
 {
     private Rigidbody2D body;
-    public float flySpeed, maxFlySpeed, jumpPower, crashSpeed, walkSpeed, maxWalkSpeed, rotateSpeed, fuelLevel, fuelMax;
-    private bool isGrounded, longGrounded;
+    public float flySpeed, maxFlySpeed, jumpPower, crashSpeed, walkSpeed, maxWalkSpeed, rotateSpeed, fuelLevel, fuelMax, oxygenLevel, oxygenMax;
+    private bool isGrounded, longGrounded, outsideGravity;
     private float horizontal;
     private float lastFrameVelocity;
     private bool isAlive = true;
@@ -24,6 +24,9 @@ public class Player : MonoBehaviour
     [SerializeField] private ParticleSystem ExplosionParticle;
 
     [SerializeField] private Slider fuelSlider;
+    [SerializeField] private Slider oxygenSlider;
+
+
     [SerializeField] private GameObject speedMeterArrow;
 
 
@@ -32,6 +35,8 @@ public class Player : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
         fuelSlider.maxValue = fuelMax;
         fuelSlider.value = fuelLevel;
+        oxygenSlider.maxValue = oxygenMax;
+        oxygenSlider.value = oxygenLevel;
     }
 
     void Update()
@@ -46,11 +51,14 @@ public class Player : MonoBehaviour
 
         if (!isGrounded) //speedmeter pijl draaien
         {
-            speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(0, -180, body.velocity.magnitude / maxFlySpeed));
+            speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(0, 180, body.velocity.magnitude / maxFlySpeed));
         }
         else
         {
-            speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, 0);
+            //speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, 0);
+
+            //lerp vanaf de current rotation naar 0 
+            speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(speedMeterArrow.transform.localEulerAngles.z, 0, Time.deltaTime * 5));
         }
 
         if(isAlive)
@@ -66,11 +74,37 @@ public class Player : MonoBehaviour
                     isGrounded = false;
                 }
             }
-
-            if (longGrounded && fuelLevel < fuelMax) //bij tanken op de grond 2 fuel per seconde
+            //---------------------------------Fuel---------------------------------bij tanken op de grond oxygen en fuel
+            if (longGrounded && fuelLevel < fuelMax)
             {
-                fuelLevel += Time.deltaTime * 2;
+                fuelLevel += Time.deltaTime * fuelMax / 2;
                 fuelSlider.value = fuelLevel;
+            }
+            if (fuelLevel > fuelMax) //max fuel
+            {
+                fuelLevel = fuelMax;
+                fuelSlider.value = fuelLevel;
+            }
+            //---------------------------------Oxygen---------------------------------
+            if (longGrounded && oxygenLevel < oxygenMax) 
+            {
+                oxygenLevel += Time.deltaTime * oxygenMax / 2;
+                oxygenSlider.value = oxygenLevel;
+            }
+            if (oxygenLevel > oxygenMax) //max oxygen
+            {
+                oxygenLevel = oxygenMax;
+                oxygenSlider.value = oxygenLevel;
+            }
+            //--------------------------------------------------------------------------
+            if (outsideGravity)
+            {
+                oxygenLevel -= Time.deltaTime;
+                oxygenSlider.value = oxygenLevel;
+            }
+            if (oxygenLevel <= 0)
+            {
+                goDie();
             }
         }
     }
@@ -170,6 +204,7 @@ public class Player : MonoBehaviour
     {
         if (obj.CompareTag("Planet"))
         {
+            outsideGravity = false;
             body.drag = 0.2f;
 
             float distance = Mathf.Abs(obj.GetComponent<GravityPoint>().planetRadius - Vector2.Distance(transform.position, obj.transform.position));
@@ -195,6 +230,7 @@ public class Player : MonoBehaviour
         if (obj.CompareTag("Planet"))
         {
             body.drag = 0.02f;
+            outsideGravity = true;
         }
     }
 
@@ -211,6 +247,9 @@ public class Player : MonoBehaviour
     {
         if (isAlive)
         {
+            StopLeftTrustParticles();
+            StopRightTrustParticles();
+            StopTrustParticles();
             CinemachineShake.Instance.ShakeCamera(20f, 0.2f);
             isAlive = false;
             playerVisual.SetActive(false);
@@ -222,6 +261,8 @@ public class Player : MonoBehaviour
             body.velocity = Vector2.zero;
             fuelLevel = fuelMax;
             fuelSlider.value = fuelLevel;
+            oxygenLevel = oxygenMax;
+            oxygenSlider.value = oxygenLevel;
             playerVisual.SetActive(true);
             isAlive = true;
         }

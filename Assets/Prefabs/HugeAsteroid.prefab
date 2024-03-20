@@ -122,8 +122,8 @@ MonoBehaviour:
   gravityScale: 15
   planetRadius: 6.46
   gravityMaxRange: 20
-  gravityFallOffStrength: 0.3
-  isRotating: 1
+  gravityFallOffStrength: 0.8
+  isRotating: 0
   rotationSpeed: 5
 --- !u!1 &916563122439707070
 GameObject:

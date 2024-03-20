@@ -29,9 +29,10 @@ public class GravityPoint : MonoBehaviour
         obj.GetComponent<Rigidbody2D>().AddForce(direction);
 
         // Rotate the player towards the planet
-        if (obj.CompareTag("Player"))
+        if (obj.CompareTag("Player") || obj.CompareTag("Alien"))
         {
-            RotatePlayer(obj, direction, dist);
+            RotateAround(obj, direction, dist);
+
         }
     }
 
@@ -51,17 +52,17 @@ public class GravityPoint : MonoBehaviour
         }
     }
 
-    void RotatePlayer(Collider2D player, Vector2 gravityDirection, float dist)
+    void RotateAround(Collider2D rotateObject, Vector2 gravityDirection, float dist)
     {
         // Rotate player towards the planet if close to the surface
         if (dist < planetRadius + 0.8f)
         {
-            player.transform.up = Vector3.MoveTowards(player.transform.up, -gravityDirection.normalized, 5 * Time.deltaTime);
+            rotateObject.transform.up = Vector3.MoveTowards(rotateObject.transform.up, -gravityDirection.normalized, 5 * Time.deltaTime);
 
             //if rotating rotate the player around the planet / asteroid
             if (isRotating)
             {
-                player.transform.RotateAround(transform.position, Vector3.forward, rotationSpeed * Time.deltaTime);
+                rotateObject.transform.RotateAround(transform.position, Vector3.forward, rotationSpeed * Time.deltaTime);
             }
         }
     }
