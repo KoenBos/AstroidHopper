@@ -6,15 +6,17 @@ public class Alien : MonoBehaviour
 {
     private Rigidbody2D body;
     [SerializeField] private float jumpPower, walkSpeed, maxWalkSpeed, rotateSpeed, flySpeed;
-    private bool isGrounded, longGrounded, outsideGravity;
+    private bool isGrounded, longGrounded, outsideGravity, activated;
     private float horizontal;
     private bool isAlive = true;
+    private GameObject player;
     
 
 
     void Start()
     {
         body = GetComponent<Rigidbody2D>();
+        GameObject player = GameObject.Find("Player");
     }
 
     void Jump()
@@ -28,18 +30,44 @@ public class Alien : MonoBehaviour
 
     void Update()
     {
-        //randomly jump and move left or right
+        if (player == null)
+        {
+            player = GameObject.Find("Player");
+        }
+        if(!activated)
+        {
+            if (player != null)
+            {
+                if (Vector2.Distance(transform.position, player.transform.position) < 10)
+                {
+                    activated = true;
+                    walkSpeed *= 2;
+                }
+            }
+        }
+        else if (Vector2.Distance(transform.position, player.transform.position) > 20)
+        {
+            jumpPower = 8;
+        }
+        else
+        {
+            jumpPower = 5;
+        }
+
+
+        //random jump en move
         if (isAlive)
         {
             if (!outsideGravity)
             {
-                if (isGrounded)
+                if (activated)
                 {
-                    if (Random.Range(0, 500) == 1)
+                    if (longGrounded && Random.Range(0, 500) == 1)
                     {
                         Jump();
                     }
                 }
+
                 if (Random.Range(0, 1000) == 64)
                 {
                     horizontal = 1;
@@ -49,20 +77,30 @@ public class Alien : MonoBehaviour
                     horizontal = -1;
                 }
             }
-            else
+            else 
             {
-                //if outside gravity, rotate the alien so it faces the player
-                GameObject player = GameObject.Find("Player");
-                if (player != null)
+                if (activated)
                 {
-                    Vector3 direction = player.transform.position - transform.position;
-                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                    transform.rotation = Quaternion.Euler(0, 0, angle - 90);
-                    //move towards the player
-                    body.AddForce(transform.up * flySpeed * Time.deltaTime);
+                    //Uit de gravity draai naar player en vlieg naar player
+                    if (player != null)
+                    {
+                        //slowly rotate z axis with rotatespeed and deltatime 2d facing the player with a lerp - 90 degrees to make it face the player correctly
+                        transform.up = Vector3.Lerp(transform.up, (player.transform.position - transform.position).normalized, rotateSpeed * Time.deltaTime);
 
-                }  
+                        //move towards the player
+                        body.AddForce(transform.up * flySpeed * Time.deltaTime);
+                    }  
+                }
+
             }
+        }
+    }
+    //botsen met alien = omdraaien
+    void OnCollisionEnter2D(Collision2D obj)
+    {
+        if (obj.gameObject.CompareTag("Alien"))
+        {
+            horizontal *= -1;
         }
     }
 

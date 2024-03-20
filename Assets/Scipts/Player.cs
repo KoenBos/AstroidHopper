@@ -86,7 +86,7 @@ public class Player : MonoBehaviour
                 fuelSlider.value = fuelLevel;
             }
             //---------------------------------Oxygen---------------------------------
-            if (longGrounded && oxygenLevel < oxygenMax) 
+            if (!outsideGravity && oxygenLevel < oxygenMax)
             {
                 oxygenLevel += Time.deltaTime * oxygenMax / 2;
                 oxygenSlider.value = oxygenLevel;
