@@ -7,14 +7,17 @@ public class Player : MonoBehaviour
 {
     private Rigidbody2D body;
     public float flySpeed, maxFlySpeed, jumpPower, crashSpeed, walkSpeed, maxWalkSpeed, rotateSpeed, fuelLevel, fuelMax, oxygenLevel, oxygenMax;
-    private bool isGrounded, longGrounded, outsideGravity;
+    private bool isGrounded, longGrounded, outsideGravity, isInvisible;
     private float horizontal;
     private float lastFrameVelocity;
     private bool isAlive = true;
     private bool isTrusting = false;
+    
+    [SerializeField] private Animator spriteAnimator;
     [SerializeField] private ParticleSystem Trustparticle;
     [SerializeField] private ParticleSystem LeftTrustparticle;
     [SerializeField] private ParticleSystem RightTrustparticle;
+
     [SerializeField] private Transform respawnPoint;
     [SerializeField] private GameObject playerVisual;
     [SerializeField] private bool Android = true;
@@ -22,6 +25,8 @@ public class Player : MonoBehaviour
 
     [SerializeField] private ParticleSystem JumpParticle;
     [SerializeField] private ParticleSystem ExplosionParticle;
+    [SerializeField] private ParticleSystem PoofParticle;
+
 
     [SerializeField] private Slider fuelSlider;
     [SerializeField] private Slider oxygenSlider;
@@ -104,7 +109,7 @@ public class Player : MonoBehaviour
             }
             if (oxygenLevel <= 0)
             {
-                goDie();
+                explode();
             }
         }
     }
@@ -238,19 +243,25 @@ public class Player : MonoBehaviour
     {
         if (obj.collider.CompareTag("Planet") && lastFrameVelocity > crashSpeed && !longGrounded)
         {
-            Debug.Log("Crashed");
-            ExplosionParticle.Play();
-            StartCoroutine(Die());
+            explode();
+        }
+        if (obj.collider.CompareTag("Alien"))
+        { 
+            if (isAlive && !isInvisible)
+            {
+                PoofParticle.Play();
+                StartCoroutine(Die());
+            }
         }
     }
+
     IEnumerator Die()
     {
-        if (isAlive)
+        if (!isInvisible && isAlive)
         {
             StopLeftTrustParticles();
             StopRightTrustParticles();
             StopTrustParticles();
-            CinemachineShake.Instance.ShakeCamera(20f, 0.2f);
             isAlive = false;
             playerVisual.SetActive(false);
             body.velocity = Vector2.zero;
@@ -265,13 +276,26 @@ public class Player : MonoBehaviour
             oxygenSlider.value = oxygenLevel;
             playerVisual.SetActive(true);
             isAlive = true;
+            StartCoroutine(Invisible());
+
         }
+
+    }
+
+    IEnumerator Invisible()
+    {
+        isInvisible = true;
+        spriteAnimator.SetBool("Invisible", true);
+        yield return new WaitForSeconds(3);
+        spriteAnimator.SetBool("Invisible", false);
+        isInvisible = false;
     }
     
-    public void goDie()
+    public void explode()
     {
         if(isAlive)
         {
+            CinemachineShake.Instance.ShakeCamera(20f, 0.2f);
             ExplosionParticle.Play();
             StartCoroutine(Die());
         }

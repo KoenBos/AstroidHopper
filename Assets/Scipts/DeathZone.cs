@@ -8,7 +8,7 @@ public class DeathZone : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            collision.GetComponent<Player>().goDie();
+            collision.GetComponent<Player>().explode();
         }
     }
 }
