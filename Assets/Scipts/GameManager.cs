@@ -1,15 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using System.IO;
-using UnityEngine;
-using System.Collections.Generic;
-
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-
     public List<bool> LevelsUnlocked { get; private set; }
     public int Diamonds { get; private set; }
 
@@ -30,21 +24,18 @@ public class GameManager : MonoBehaviour
 
     private void InitializeLevels()
     {
-        // Bijvoorbeeld: je hebt 10 levels, waarbij alleen de eerste bij start unlocked is
-        LevelsUnlocked = new List<bool>() { true };
-        for (int i = 1; i < 10; i++) // Pas het aantal levels aan op basis van je spel
-        {
-            LevelsUnlocked.Add(false);
-        }
+        int totalLevels = 10; // Pas dit aan op basis van je daadwerkelijke aantal levels
+        LevelsUnlocked = new List<bool>(new bool[totalLevels]);
+        LevelsUnlocked[0] = true; // Zorgt ervoor dat level 1 altijd ontgrendeld is
     }
 
     public void LevelCompleted(int levelIndex)
     {
         if (levelIndex < LevelsUnlocked.Count - 1)
         {
-            LevelsUnlocked[levelIndex + 1] = true; // Ontgrendel het volgende level
+            LevelsUnlocked[levelIndex + 1] = true; // Ontgrendelt het volgende level
+            SaveProgress();
         }
-        SaveProgress();
     }
 
     public void SaveProgress()
@@ -63,6 +54,7 @@ public class GameManager : MonoBehaviour
         {
             LevelsUnlocked[i] = PlayerPrefs.GetInt($"Level_{i}_Unlocked", 0) == 1;
         }
+        LevelsUnlocked[0] = true; // Verzekert dat level 1 altijd ontgrendeld blijft
         Diamonds = PlayerPrefs.GetInt("Diamonds", 0);
     }
 }

@@ -2,27 +2,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
+
 public class LevelManager : MonoBehaviour
 {
     void Start()
     {
-        UpdateLevelLockStatus();
+        Invoke("UpdateLevelLockStatus", 0.1f); // Geeft GameManager tijd om te initialiseren
     }
 
-    void UpdateLevelLockStatus()
+    public void UpdateLevelLockStatus()
     {
         for (int i = 0; i < transform.childCount; i++)
         {
-            int index = i; // Kopieer de index naar een lokale variabele om te gebruiken in de lambda expressie
+            int index = i;
             var level = transform.GetChild(i);
-            Button levelButton = level.gameObject.GetComponent<Button>();
-            levelButton.onClick.AddListener(() => LoadLevel(index));
+            var button = level.GetComponent<Button>();
+            if (button == null)
+            {
+                Debug.LogError($"Button component ontbreekt op level object {level.name}.");
+                continue;
+            }
+
+            var lockSprite = level.Find("LockSprite");
+            if (lockSprite == null)
+            {
+                Debug.LogError($"LockSprite niet gevonden op level object {level.name}.");
+                continue;
+            }
 
             bool isUnlocked = GameManager.Instance.LevelsUnlocked[index];
-            level.Find("LockSprite").gameObject.SetActive(!isUnlocked);
-
-            // Schakel de interactie van de knop in of uit afhankelijk van de ontgrendelstatus
-            levelButton.interactable = isUnlocked;
+            lockSprite.gameObject.SetActive(!isUnlocked);
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => LoadLevel(index));
         }
     }
 
@@ -31,7 +43,8 @@ public class LevelManager : MonoBehaviour
         if (GameManager.Instance.LevelsUnlocked[levelIndex])
         {
             Debug.Log($"Level {levelIndex} geladen.");
-            // SceneManager.LoadScene($"Level{levelIndex}"); // Voeg de juiste scene naam toe
+            // Voeg hier code toe om het
+            // SceneManager.LoadScene("Level" + levelIndex); // Uncomment en pas aan
         }
         else
         {
