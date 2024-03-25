@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 
 public class LevelManager : MonoBehaviour
@@ -43,8 +44,8 @@ public class LevelManager : MonoBehaviour
         if (GameManager.Instance.LevelsUnlocked[levelIndex])
         {
             Debug.Log($"Level {levelIndex} geladen.");
-            // Voeg hier code toe om het
-            // SceneManager.LoadScene("Level" + levelIndex); // Uncomment en pas aan
+
+            SceneManager.LoadScene("Level" + (levelIndex + 1)); // Uncomment en pas aan
         }
         else
         {

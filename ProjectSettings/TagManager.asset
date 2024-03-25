@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Planet
   - Alien
+  - Ruby
   layers:
   - Default
   - TransparentFX

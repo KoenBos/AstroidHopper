@@ -2,12 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class Player : MonoBehaviour
 {
     private Rigidbody2D body;
     public float flySpeed, maxFlySpeed, jumpPower, crashSpeed, walkSpeed, maxWalkSpeed, rotateSpeed, fuelLevel, fuelMax, oxygenLevel, oxygenMax;
     private bool isGrounded, longGrounded, outsideGravity, isInvisible;
+    [SerializeField] private TextMeshProUGUI rubyCounterText;
+    public int collectedDiamonds = 0;
     private float horizontal;
     private float lastFrameVelocity;
     private bool isAlive = true;
@@ -252,6 +255,13 @@ public class Player : MonoBehaviour
                 PoofParticle.Play();
                 StartCoroutine(Die());
             }
+        }
+
+        if (obj.collider.CompareTag("Ruby"))
+        {
+            collectedDiamonds++;
+            rubyCounterText.text = collectedDiamonds.ToString();
+            Destroy(obj.gameObject);
         }
     }
 
