@@ -54,7 +54,7 @@ public class ObjectiveManager : MonoBehaviour
             {
                 Debug.Log("Mission Completed");
                 //get the game manager and call the level completed function
-                GameManager.Instance.LevelCompleted(levelIndex);
+                GameManager.Instance.LevelCompleted(levelIndex - 1);
                 break;
             }
             yield return null;
