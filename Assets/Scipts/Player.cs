@@ -63,9 +63,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            //speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, 0);
-
-            //lerp vanaf de current rotation naar 0 
+            //lerp vanaf de current rotation naar 0    Pijl langzaam terugdraaien
             speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(speedMeterArrow.transform.localEulerAngles.z, 0, Time.deltaTime * 5));
         }
 
@@ -262,6 +260,10 @@ public class Player : MonoBehaviour
             collectedDiamonds++;
             rubyCounterText.text = collectedDiamonds.ToString();
             Destroy(obj.gameObject);
+        }
+        if (obj.collider.CompareTag("Collectable"))
+        {
+            obj.gameObject.SetActive(false);
         }
     }
 

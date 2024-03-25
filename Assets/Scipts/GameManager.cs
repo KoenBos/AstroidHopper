@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -35,6 +36,7 @@ public class GameManager : MonoBehaviour
         {
             LevelsUnlocked[levelIndex + 1] = true; // Ontgrendelt het volgende level
             SaveProgress();
+            SceneManager.LoadScene("MainMenu");
         }
     }
 

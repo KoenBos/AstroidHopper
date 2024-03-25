@@ -6,6 +6,7 @@ public class ObjectiveManager : MonoBehaviour
 {
     [SerializeField] private bool isTimed, collectMission, surviveMission, gotoMission;
     [SerializeField] private float timeLimit, surviveTime;
+    [SerializeField] private int levelIndex;
 
     [SerializeField] private List<GameObject> checkforObjects;
 
@@ -52,6 +53,8 @@ public class ObjectiveManager : MonoBehaviour
             if (allCollected)
             {
                 Debug.Log("Mission Completed");
+                //get the game manager and call the level completed function
+                GameManager.Instance.LevelCompleted(levelIndex);
                 break;
             }
             yield return null;
