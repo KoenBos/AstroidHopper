@@ -425,7 +425,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6753096090647609145, guid: fa44fcc785777b04db31013f18995a13, type: 3}
       propertyPath: rotationSpeed
-      value: 5
+      value: -10
       objectReference: {fileID: 0}
     - target: {fileID: 8592083508448525660, guid: fa44fcc785777b04db31013f18995a13, type: 3}
       propertyPath: m_LocalPosition.x
@@ -31560,14 +31560,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 112c8ce84690c8b4a97b4e40a1d672d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isTimed: 1
-  collectMission: 0
+  isTimed: 0
+  collectMission: 1
   surviveMission: 0
-  gotoMission: 1
-  timeLimit: 20
+  gotoMission: 0
+  timeLimit: 0
   surviveTime: 0
-  gotoLocation: {fileID: 1397955860}
-  levelIndex: 1
+  gotoLocation: {fileID: 1397641755}
+  levelIndex: 3
   checkforObjects:
   - {fileID: 487639332}
   - {fileID: 1886651268}
@@ -31577,7 +31577,6 @@ MonoBehaviour:
   MissionTitleText: {fileID: 336927847}
   MissionDescription: {fileID: 1394956931}
   InfoTextPanel: {fileID: 1979166509}
-  TimePanel: {fileID: 0}
 --- !u!4 &1045398257
 Transform:
   m_ObjectHideFlags: 0
@@ -31836,6 +31835,63 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1001 &1104368217
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 116539249510045113, guid: f2a791f5b35e7874f9408510d5337802, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -30.62393
+      objectReference: {fileID: 0}
+    - target: {fileID: 116539249510045113, guid: f2a791f5b35e7874f9408510d5337802, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -11.692445
+      objectReference: {fileID: 0}
+    - target: {fileID: 116539249510045113, guid: f2a791f5b35e7874f9408510d5337802, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 116539249510045113, guid: f2a791f5b35e7874f9408510d5337802, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 116539249510045113, guid: f2a791f5b35e7874f9408510d5337802, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 116539249510045113, guid: f2a791f5b35e7874f9408510d5337802, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 116539249510045113, guid: f2a791f5b35e7874f9408510d5337802, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 116539249510045113, guid: f2a791f5b35e7874f9408510d5337802, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 116539249510045113, guid: f2a791f5b35e7874f9408510d5337802, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 116539249510045113, guid: f2a791f5b35e7874f9408510d5337802, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3517379509807108492, guid: f2a791f5b35e7874f9408510d5337802, type: 3}
+      propertyPath: m_Name
+      value: LavaAsteroidSmall
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f2a791f5b35e7874f9408510d5337802, type: 3}
 --- !u!1 &1129613814
 GameObject:
   m_ObjectHideFlags: 0
@@ -54027,3 +54083,4 @@ SceneRoots:
   - {fileID: 487639331}
   - {fileID: 1886651267}
   - {fileID: 1985132537}
+  - {fileID: 1104368217}

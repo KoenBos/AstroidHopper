@@ -31561,13 +31561,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isTimed: 1
-  collectMission: 0
+  collectMission: 1
   surviveMission: 0
-  gotoMission: 1
-  timeLimit: 20
+  gotoMission: 0
+  timeLimit: 60
   surviveTime: 0
-  gotoLocation: {fileID: 1397955860}
-  levelIndex: 1
+  gotoLocation: {fileID: 1397641755}
+  levelIndex: 2
   checkforObjects:
   - {fileID: 487639332}
   - {fileID: 1886651268}
@@ -31577,7 +31577,6 @@ MonoBehaviour:
   MissionTitleText: {fileID: 336927847}
   MissionDescription: {fileID: 1394956931}
   InfoTextPanel: {fileID: 1979166509}
-  TimePanel: {fileID: 0}
 --- !u!4 &1045398257
 Transform:
   m_ObjectHideFlags: 0

@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
     public int collectedDiamonds = 0;
     private float horizontal;
     private float lastFrameVelocity;
-    private bool isAlive = true;
+    public bool isAlive = true;
     private bool isTrusting = false;
     
     [SerializeField] private Animator spriteAnimator;
