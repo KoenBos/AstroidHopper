@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
+
 
 public class ObjectiveManager : MonoBehaviour
 {
@@ -40,6 +42,7 @@ public class ObjectiveManager : MonoBehaviour
     private void FailedMission()
     {
         Debug.Log("Mission Failed");
+        SceneManager.LoadScene("MainMenu");
     }
     private IEnumerator CompletedMission()
     {
@@ -65,7 +68,7 @@ public class ObjectiveManager : MonoBehaviour
     }
     private IEnumerator HideMissionText()
     {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(3);
         InfoTextPanel.SetActive(false);
     }
     private IEnumerator CollectMission()
@@ -112,7 +115,7 @@ public class ObjectiveManager : MonoBehaviour
 
     private IEnumerator GotoMission()
     {
-        while (Vector3.Distance(player.transform.position, gotoLocation.position) > 2)
+        while (Vector3.Distance(player.transform.position, gotoLocation.position) > 1)
         {
             yield return null;
         }

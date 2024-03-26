@@ -6,7 +6,8 @@ public class Alien : MonoBehaviour
 {
     private Rigidbody2D body;
     [SerializeField] private float jumpPower, walkSpeed, maxWalkSpeed, rotateSpeed, flySpeed;
-    private bool isGrounded, longGrounded, outsideGravity, activated;
+    private bool isGrounded, longGrounded, activated;
+    private bool outsideGravity = true;
     private float horizontal;
     private bool isAlive = true;
     private GameObject player;
