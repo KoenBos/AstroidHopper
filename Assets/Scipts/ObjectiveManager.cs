@@ -42,7 +42,9 @@ public class ObjectiveManager : MonoBehaviour
     private void FailedMission()
     {
         Debug.Log("Mission Failed");
-        SceneManager.LoadScene("MainMenu");
+
+        
+        GameManager.Instance.LevelFailed();
     }
     private IEnumerator CompletedMission()
     {

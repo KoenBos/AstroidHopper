@@ -10,7 +10,6 @@ public class Player : MonoBehaviour
     public float flySpeed, maxFlySpeed, jumpPower, crashSpeed, walkSpeed, maxWalkSpeed, rotateSpeed, fuelLevel, fuelMax, oxygenLevel, oxygenMax;
     private bool isGrounded, longGrounded, outsideGravity, isInvisible;
     [SerializeField] private TextMeshProUGUI rubyCounterText;
-    public int collectedDiamonds = 0;
     private float horizontal;
     private float lastFrameVelocity;
     public bool isAlive = true;
@@ -257,8 +256,8 @@ public class Player : MonoBehaviour
 
         if (obj.collider.CompareTag("Ruby"))
         {
-            collectedDiamonds++;
-            rubyCounterText.text = collectedDiamonds.ToString();
+            GameManager.Instance.CollectedDiamonds++;
+            rubyCounterText.text = GameManager.Instance.CollectedDiamonds.ToString();
             Destroy(obj.gameObject);
         }
         if (obj.collider.CompareTag("Collectable"))

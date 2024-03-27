@@ -7,6 +7,10 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     public List<bool> LevelsUnlocked { get; private set; }
     public int Diamonds { get; private set; }
+    public int CollectedDiamonds = 0;
+    public bool justLevelComplete = false;
+    public bool justLevelFailed = false;
+
 
     private void Awake()
     {
@@ -35,9 +39,19 @@ public class GameManager : MonoBehaviour
         if (levelIndex < LevelsUnlocked.Count - 1)
         {
             LevelsUnlocked[levelIndex + 1] = true; // Ontgrendelt het volgende level
+            Diamonds += CollectedDiamonds;
+            CollectedDiamonds = 0;
             SaveProgress();
+            justLevelComplete = true;
             SceneManager.LoadScene("MainMenu");
         }
+    }
+
+    public void LevelFailed()
+    {
+        CollectedDiamonds = 0;
+        justLevelFailed = true;
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void SaveProgress()
