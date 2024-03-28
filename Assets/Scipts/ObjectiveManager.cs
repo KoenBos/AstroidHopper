@@ -20,7 +20,7 @@ public class ObjectiveManager : MonoBehaviour
     private void Start()
     {
         InfoTextPanel.SetActive(true);
-        StartCoroutine(HideMissionText());
+        //StartCoroutine(HideMissionText());
         player = GameObject.FindGameObjectWithTag("Player");
         if (isTimed)
         {
