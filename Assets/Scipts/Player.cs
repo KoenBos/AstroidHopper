@@ -22,7 +22,7 @@ public class Player : MonoBehaviour
 
     [SerializeField] private Transform respawnPoint;
     [SerializeField] private GameObject playerVisual;
-    [SerializeField] private bool Android = true;
+    private bool Android = false;
 
 
     [SerializeField] private ParticleSystem JumpParticle;
@@ -287,19 +287,24 @@ public class Player : MonoBehaviour
             oxygenSlider.value = oxygenLevel;
             playerVisual.SetActive(true);
             isAlive = true;
-            StartCoroutine(Invisible());
+            StartCoroutine(Invisible(3));
 
         }
 
     }
 
-    IEnumerator Invisible()
+    IEnumerator Invisible(float time)
     {
         isInvisible = true;
         spriteAnimator.SetBool("Invisible", true);
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(time);
         spriteAnimator.SetBool("Invisible", false);
         isInvisible = false;
+    }
+
+    public void makeInvisible(float time)
+    {
+        StartCoroutine(Invisible(time));
     }
     
     public void explode()

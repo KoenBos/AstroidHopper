@@ -7,15 +7,14 @@ using UnityEngine.SceneManagement;
 
 public class ObjectiveManager : MonoBehaviour
 {
-    [SerializeField] private bool isTimed, collectMission, surviveMission, gotoMission;
+    [SerializeField] private bool isTimed, collectMission, surviveMission, gotoMission, levelCompleted;
     [SerializeField] private float timeLimit, surviveTime;
     [SerializeField] private Transform gotoLocation;
     [SerializeField] private int levelIndex;
     [SerializeField] private List<GameObject> checkforObjects;
     [SerializeField] private TextMeshProUGUI TimerText, TimerTitleText, MissionTitleText, MissionDescription;
-    [SerializeField] private GameObject InfoTextPanel, TimePanel;
+    [SerializeField] private GameObject InfoTextPanel, TimePanel, failedPanel, completedPanel;
     private GameObject player;
-
 
     private void Start()
     {
@@ -42,31 +41,51 @@ public class ObjectiveManager : MonoBehaviour
     private void FailedMission()
     {
         Debug.Log("Mission Failed");
-
+        failedPanel.SetActive(true);
+        StartCoroutine(slowTimeToZero());
         
-        GameManager.Instance.LevelFailed();
+    }
+    public void completeLevelHome()
+    {
+        Time.timeScale = 1;
+        GameManager.Instance.LevelCompleted(levelIndex - 1);
     }
     private IEnumerator CompletedMission()
     {
+        levelCompleted = true;
+        completedPanel.SetActive(true);
         Debug.Log("Mission Completed");
-        //play star animation
-        //wait for animation to finish
-        GameManager.Instance.LevelCompleted(levelIndex - 1);
+        player.GetComponent<Player>().makeInvisible(9999);
+        yield return StartCoroutine(slowTimeToZero());
         yield return null;
+    }
+
+    private IEnumerator slowTimeToZero()
+    {
+        float t = 0;
+        while (t < 1)
+        {
+            Time.timeScale = Mathf.Lerp(1, 0, t);
+            t += Time.unscaledDeltaTime;
+            yield return null;
+        }
     }
     private IEnumerator TimedMission()
     {
         TimePanel.SetActive(true);
         TimerTitleText.text = "Time Left";
         float timeLeft = timeLimit;
-        while (timeLeft > 0)
+        while (timeLeft > 0 && !levelCompleted)
         {
             TimerText.text = timeLeft.ToString("F1");
             yield return new WaitForSeconds(0.1f);
             timeLeft -= 0.1f;
         }
+        if (!levelCompleted)
+        {
         TimerText.text = "0.0";
         FailedMission();
+        }
     }
     private IEnumerator HideMissionText()
     {
