@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class PauseManager : MonoBehaviour
 {
     public static bool GameIsPaused = false;
+    public bool canBePaused = true;
     public GameObject pausePanel;
 
     private void Start()
@@ -15,7 +16,7 @@ public class PauseManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && canBePaused)
         {
             if (GameIsPaused)
             {

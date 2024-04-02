@@ -29,9 +29,9 @@ public class GameManager : MonoBehaviour
 
     private void InitializeLevels()
     {
-        int totalLevels = 10; // Pas dit aan op basis van je daadwerkelijke aantal levels
+        int totalLevels = 10; // Aantal levels
         LevelsUnlocked = new List<bool>(new bool[totalLevels]);
-        LevelsUnlocked[0] = true; // Zorgt ervoor dat level 1 altijd ontgrendeld is
+        LevelsUnlocked[0] = true; // level 1 is altijd ontgrendeld
     }
 
     public void LevelCompleted(int levelIndex)
@@ -70,7 +70,7 @@ public class GameManager : MonoBehaviour
         {
             LevelsUnlocked[i] = PlayerPrefs.GetInt($"Level_{i}_Unlocked", 0) == 1;
         }
-        LevelsUnlocked[0] = true; // Verzekert dat level 1 altijd ontgrendeld blijft
+        LevelsUnlocked[0] = true;
         Diamonds = PlayerPrefs.GetInt("Diamonds", 0);
     }
 }

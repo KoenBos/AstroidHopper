@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
     [SerializeField] private TextMeshProUGUI rubyCounterText;
     private float horizontal;
     private float lastFrameVelocity;
-    public bool isAlive = true;
+    public bool isAlive = true, canMove = false;
     private bool isTrusting = false;
     
     [SerializeField] private Animator spriteAnimator;
@@ -46,6 +46,11 @@ public class Player : MonoBehaviour
         oxygenSlider.value = oxygenLevel;
     }
 
+    public void enableMovement()
+    {
+        canMove = true;
+    }
+
     void Update()
     {
         if (!Android)
@@ -66,7 +71,7 @@ public class Player : MonoBehaviour
             speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(speedMeterArrow.transform.localEulerAngles.z, 0, Time.deltaTime * 5));
         }
 
-        if(isAlive)
+        if(isAlive && canMove)
         {
             if (Input.GetKeyDown(KeyCode.Space)) //Jump als je op de grond bent
             {
@@ -133,7 +138,7 @@ public class Player : MonoBehaviour
                 body.AddForce(-transform.up * 10); //blijven plakken op de planeet
             }
 
-            if(isGrounded)
+            if(isGrounded && canMove)
             {
                 if (body.velocity.magnitude < maxWalkSpeed) //lopen als je op de grond bent
                 {
@@ -185,9 +190,9 @@ public class Player : MonoBehaviour
             StopTrustParticles();
         }
     }
-    public void JumpTrust()
+    public void JumpTrust() // Jump for mobile
     {
-        if(isAlive)
+        if(isAlive && canMove)
         {
             if (isGrounded)
             {

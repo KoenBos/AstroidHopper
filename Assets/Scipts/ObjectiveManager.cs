@@ -7,17 +7,20 @@ using UnityEngine.SceneManagement;
 
 public class ObjectiveManager : MonoBehaviour
 {
-    [SerializeField] private bool isTimed, collectMission, surviveMission, gotoMission, levelCompleted;
+    [SerializeField] private bool isTimed, collectMission, surviveMission, gotoMission, levelCompleted, LevelStarted;
     [SerializeField] private float timeLimit, surviveTime;
     [SerializeField] private Transform gotoLocation;
     [SerializeField] private int levelIndex;
     [SerializeField] private List<GameObject> checkforObjects;
-    [SerializeField] private TextMeshProUGUI TimerText, TimerTitleText, MissionTitleText, MissionDescription;
-    [SerializeField] private GameObject InfoTextPanel, TimePanel, failedPanel, completedPanel;
+    [SerializeField] private TextMeshProUGUI TimerText, TimerTitleText, MissionTitleText, MissionDescription, livesText;
+    [SerializeField] private GameObject InfoTextPanel, TimePanel, failedPanel, completedPanel,  PauseManager;
     private GameObject player;
+    private int maxLives = 3;
+    private bool removingLife = false;
 
     private void Start()
     {
+        livesText.text = maxLives.ToString();
         InfoTextPanel.SetActive(true);
         //StartCoroutine(HideMissionText());
         player = GameObject.FindGameObjectWithTag("Player");
@@ -38,25 +41,34 @@ public class ObjectiveManager : MonoBehaviour
             StartCoroutine(GotoMission());
         }
     }
+    public void StartLevel()
+    {
+        LevelStarted = true;
+    }
     private void FailedMission()
     {
-        Debug.Log("Mission Failed");
-        failedPanel.SetActive(true);
-        StartCoroutine(slowTimeToZero());
-        
+        StartCoroutine(MissionFailed());
     }
     public void completeLevelHome()
     {
         Time.timeScale = 1;
         GameManager.Instance.LevelCompleted(levelIndex - 1);
     }
+    private IEnumerator MissionFailed()
+    {
+        PauseManager.GetComponent<PauseManager>().canBePaused = false;
+        yield return StartCoroutine(slowTimeToZero());
+        Debug.Log("Mission Failed");
+        failedPanel.SetActive(true);
+    }
     private IEnumerator CompletedMission()
     {
+        player.GetComponent<Player>().makeInvisible(9999);
+        PauseManager.GetComponent<PauseManager>().canBePaused = false;
+        yield return StartCoroutine(slowTimeToZero());
         levelCompleted = true;
         completedPanel.SetActive(true);
         Debug.Log("Mission Completed");
-        player.GetComponent<Player>().makeInvisible(9999);
-        yield return StartCoroutine(slowTimeToZero());
         yield return null;
     }
 
@@ -66,7 +78,7 @@ public class ObjectiveManager : MonoBehaviour
         while (t < 1)
         {
             Time.timeScale = Mathf.Lerp(1, 0, t);
-            t += Time.unscaledDeltaTime;
+            t += Time.unscaledDeltaTime * 0.8f;
             yield return null;
         }
     }
@@ -75,6 +87,14 @@ public class ObjectiveManager : MonoBehaviour
         TimePanel.SetActive(true);
         TimerTitleText.text = "Time Left";
         float timeLeft = timeLimit;
+        TimerText.text = timeLimit.ToString("F1");
+
+        //wait level start
+        while (!LevelStarted)
+        {
+            yield return null;
+        }
+
         while (timeLeft > 0 && !levelCompleted)
         {
             TimerText.text = timeLeft.ToString("F1");
@@ -116,9 +136,19 @@ public class ObjectiveManager : MonoBehaviour
 
     private IEnumerator SurviveMission()
     {
+        maxLives = 1;
+        livesText.text = maxLives.ToString();
         TimePanel.SetActive(true);
         TimerTitleText.text = "Survive Time";
         float timeLeft = surviveTime;
+        TimerText.text = surviveTime.ToString("F1");
+
+        //wait level start
+        while (!LevelStarted)
+        {
+            yield return null;
+        }
+
         while (timeLeft > 0)
         {
             TimerText.text = timeLeft.ToString("F1");
@@ -142,4 +172,28 @@ public class ObjectiveManager : MonoBehaviour
         }
         yield return StartCoroutine(CompletedMission());
     }
+
+    private void Update()
+    {
+        if (player.GetComponent<Player>().isAlive == false && !removingLife)
+        {
+            StartCoroutine(RemoveLife());
+        }
+    }
+
+    private IEnumerator RemoveLife()
+    {
+        removingLife = true;
+        maxLives--;
+        livesText.text = maxLives.ToString();
+        if (maxLives == 0)
+        {
+            FailedMission();
+            yield break;
+        }
+        yield return new WaitForSeconds(5.2f);
+        removingLife = false;
+    }
+
+
 }
