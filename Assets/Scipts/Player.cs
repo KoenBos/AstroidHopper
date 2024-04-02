@@ -179,11 +179,14 @@ public class Player : MonoBehaviour
 
         if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || Input.GetKey(KeyCode.W) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || isTrusting && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0)
         {
-            CinemachineShake.Instance.ShakeCamera(body.velocity.magnitude / 10, 0.1f);
-            body.AddForce(transform.up * flySpeed * Time.deltaTime * 50); // main Truster
-            fuelLevel -= Time.deltaTime;
-            fuelSlider.value = fuelLevel;
-            StartTrustParticles();
+            if (canMove)
+            {
+                CinemachineShake.Instance.ShakeCamera(body.velocity.magnitude / 10, 0.1f);
+                body.AddForce(transform.up * flySpeed * Time.deltaTime * 50); // main Truster
+                fuelLevel -= Time.deltaTime;
+                fuelSlider.value = fuelLevel;
+                StartTrustParticles();
+            }
         }
         else
         {

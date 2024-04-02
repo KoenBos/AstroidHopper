@@ -12,32 +12,37 @@ public class ObjectiveManager : MonoBehaviour
     [SerializeField] private Transform gotoLocation;
     [SerializeField] private int levelIndex;
     [SerializeField] private List<GameObject> checkforObjects;
-    [SerializeField] private TextMeshProUGUI TimerText, TimerTitleText, MissionTitleText, MissionDescription, livesText;
+    [SerializeField] private TextMeshProUGUI TimerText, TimerTitleText, MissionTitleText, MissionDescription, livesText, LoseReasonText, pauseMenuInfoText;
     [SerializeField] private GameObject InfoTextPanel, TimePanel, failedPanel, completedPanel,  PauseManager;
     private GameObject player;
     private int maxLives = 3;
-    private bool removingLife = false;
+    private bool removingLife = false, alreadyFailed = false;
 
     private void Start()
     {
+        pauseMenuInfoText.text = MissionDescription.text;
         livesText.text = maxLives.ToString();
         InfoTextPanel.SetActive(true);
         //StartCoroutine(HideMissionText());
         player = GameObject.FindGameObjectWithTag("Player");
         if (isTimed)
         {
+            MissionTitleText.text = "Timed Mission";
             StartCoroutine(TimedMission());
         }
         if (collectMission)
         {
+            MissionTitleText.text = "Collect Mission";
             StartCoroutine(CollectMission());
         }
         if (surviveMission)
         {
+            MissionTitleText.text = "Survive Mission";
             StartCoroutine(SurviveMission());
         }
         if (gotoMission)
         {
+            MissionTitleText.text = "Goto Mission";
             StartCoroutine(GotoMission());
         }
     }
@@ -56,6 +61,7 @@ public class ObjectiveManager : MonoBehaviour
     }
     private IEnumerator MissionFailed()
     {
+        alreadyFailed = true;
         PauseManager.GetComponent<PauseManager>().canBePaused = false;
         yield return StartCoroutine(slowTimeToZero());
         Debug.Log("Mission Failed");
@@ -63,10 +69,14 @@ public class ObjectiveManager : MonoBehaviour
     }
     private IEnumerator CompletedMission()
     {
+        if (alreadyFailed)
+        {
+            yield break;
+        }
+        levelCompleted = true;
         player.GetComponent<Player>().makeInvisible(9999);
         PauseManager.GetComponent<PauseManager>().canBePaused = false;
         yield return StartCoroutine(slowTimeToZero());
-        levelCompleted = true;
         completedPanel.SetActive(true);
         Debug.Log("Mission Completed");
         yield return null;
@@ -104,6 +114,7 @@ public class ObjectiveManager : MonoBehaviour
         if (!levelCompleted)
         {
         TimerText.text = "0.0";
+        LoseReasonText.text = "Time's up...";
         FailedMission();
         }
     }
@@ -156,6 +167,7 @@ public class ObjectiveManager : MonoBehaviour
             timeLeft -= 0.1f;
             if (player.GetComponent<Player>().isAlive == false)
             {
+                LoseReasonText.text = "You died...";
                 FailedMission();
                 yield break;
             }
@@ -175,7 +187,7 @@ public class ObjectiveManager : MonoBehaviour
 
     private void Update()
     {
-        if (player.GetComponent<Player>().isAlive == false && !removingLife)
+        if (player.GetComponent<Player>().isAlive == false && !removingLife && !surviveMission)
         {
             StartCoroutine(RemoveLife());
         }
@@ -188,6 +200,7 @@ public class ObjectiveManager : MonoBehaviour
         livesText.text = maxLives.ToString();
         if (maxLives == 0)
         {
+            LoseReasonText.text = "Out of lives...";
             FailedMission();
             yield break;
         }
