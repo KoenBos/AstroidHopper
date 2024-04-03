@@ -12,8 +12,8 @@ public class ObjectiveManager : MonoBehaviour
     [SerializeField] private Transform gotoLocation;
     [SerializeField] private int levelIndex;
     [SerializeField] private List<GameObject> checkforObjects;
-    [SerializeField] private TextMeshProUGUI TimerText, TimerTitleText, MissionTitleText, MissionDescription, livesText, LoseReasonText, pauseMenuInfoText;
-    [SerializeField] private GameObject InfoTextPanel, TimePanel, failedPanel, completedPanel,  PauseManager;
+    [SerializeField] private TextMeshProUGUI TimerText, TimerTitleText, MissionTitleText, MissionDescription, livesText, LoseReasonText, pauseMenuInfoText, collectedDiamondsText;
+    [SerializeField] private GameObject InfoTextPanel, TimePanel, failedPanel, completedPanel,  PauseManager, LevelContinueButton;
     private GameObject player;
     private int maxLives = 3;
     private bool removingLife = false, alreadyFailed = false;
@@ -76,8 +76,36 @@ public class ObjectiveManager : MonoBehaviour
         levelCompleted = true;
         player.GetComponent<Player>().makeInvisible(9999);
         PauseManager.GetComponent<PauseManager>().canBePaused = false;
-        yield return StartCoroutine(slowTimeToZero());
+        
         completedPanel.SetActive(true);
+       
+       yield return new WaitForSeconds(0.2f);
+
+        int diamondsCollected = GameManager.Instance.CollectedDiamonds;
+        int diamondsAdded = 0;
+        while (diamondsCollected > diamondsAdded)
+        {
+            diamondsAdded++;
+            collectedDiamondsText.text = diamondsAdded.ToString();
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+        yield return StartCoroutine(slowTimeToZero());
+
+        //slowy show level continue button by changing the opacity
+        LevelContinueButton.SetActive(true);
+        float t = 0;
+        while (t < 1)
+        {
+            LevelContinueButton.GetComponent<CanvasGroup>().alpha = t;
+            t += Time.unscaledDeltaTime * 0.8f;
+            yield return null;
+        }
+
+
+
         Debug.Log("Mission Completed");
         yield return null;
     }
