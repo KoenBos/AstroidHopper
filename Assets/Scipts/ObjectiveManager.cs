@@ -14,6 +14,7 @@ public class ObjectiveManager : MonoBehaviour
     [SerializeField] private List<GameObject> checkforObjects;
     [SerializeField] private TextMeshProUGUI TimerText, TimerTitleText, MissionTitleText, MissionDescription, livesText, LoseReasonText, pauseMenuInfoText, collectedDiamondsText;
     [SerializeField] private GameObject InfoTextPanel, TimePanel, failedPanel, completedPanel,  PauseManager, LevelContinueButton;
+    [SerializeField] private string music;
     private GameObject player;
     private int maxLives = 3;
     private bool removingLife = false, alreadyFailed = false;
@@ -45,10 +46,12 @@ public class ObjectiveManager : MonoBehaviour
             MissionTitleText.text = "Goto Mission";
             StartCoroutine(GotoMission());
         }
+        AudioManager.Instance.PlayMusic(music, 0.5f);
     }
     public void StartLevel()
     {
         LevelStarted = true;
+        //play music
     }
     private void FailedMission()
     {
@@ -65,6 +68,8 @@ public class ObjectiveManager : MonoBehaviour
         alreadyFailed = true;
         PauseManager.GetComponent<PauseManager>().canBePaused = false;
         yield return StartCoroutine(slowTimeToZero());
+        AudioManager.Instance.StopMusic();
+
         Debug.Log("Mission Failed");
         failedPanel.SetActive(true);
     }
@@ -75,6 +80,7 @@ public class ObjectiveManager : MonoBehaviour
             yield break;
         }
         levelCompleted = true;
+        AudioManager.Instance.StopMusic();
         player.GetComponent<Player>().makeInvisible(9999);
         PauseManager.GetComponent<PauseManager>().canBePaused = false;
         

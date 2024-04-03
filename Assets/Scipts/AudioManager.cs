@@ -56,6 +56,11 @@ public class AudioManager : MonoBehaviour
             Debug.LogWarning("SFX clip not found: " + name);
         }
     }
+    
+    public void StopSFX()
+    {
+        sfxSource.Stop();
+    }
 
     public void PlayMusic(string name, float volume = 1.0f, bool loop = true)
     {
@@ -70,5 +75,33 @@ public class AudioManager : MonoBehaviour
         {
             Debug.LogWarning("Music clip not found: " + name);
         }
+    }
+
+    public bool IsPlaying(string name)
+    {
+        if (sfxClipDictionary.TryGetValue(name, out var clip))
+        {
+            return sfxSource.clip == clip && sfxSource.isPlaying;
+        }
+        if (musicClipDictionary.TryGetValue(name, out clip))
+        {
+            return musicSource.clip == clip && musicSource.isPlaying;
+        }
+        return false;
+    }
+
+    public void StopMusic()
+    {
+        musicSource.Stop();
+    }
+
+    public void PauseMusic()
+    {
+        musicSource.Pause();
+    }
+
+    public void ResumeMusic()
+    {
+        musicSource.UnPause();
     }
 }

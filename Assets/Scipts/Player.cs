@@ -56,8 +56,7 @@ public class Player : MonoBehaviour
         if (!Android)
         {
             GetMovementInput();
-        }
-        
+        }   
 
         lastFrameVelocity = body.velocity.magnitude; //velocity van 1 frame geleden voor crash detectie
 
@@ -190,6 +189,8 @@ public class Player : MonoBehaviour
         }
         else
         {
+
+            AudioManager.Instance.StopSFX();
             StopTrustParticles();
         }
     }
@@ -265,6 +266,7 @@ public class Player : MonoBehaviour
         if (obj.collider.CompareTag("Ruby"))
         {
             GameManager.Instance.CollectedDiamonds++;
+            AudioManager.Instance.PlaySFX("gem");
             rubyCounterText.text = GameManager.Instance.CollectedDiamonds.ToString();
             Destroy(obj.gameObject);
         }
@@ -287,6 +289,7 @@ public class Player : MonoBehaviour
 
             yield return new WaitForSeconds(3);
 
+            AudioManager.Instance.PlaySFX("respawn");
             transform.position = respawnPoint.position;
             body.velocity = Vector2.zero;
             fuelLevel = fuelMax;
@@ -320,6 +323,7 @@ public class Player : MonoBehaviour
         if(isAlive)
         {
             CinemachineShake.Instance.ShakeCamera(20f, 0.2f);
+            AudioManager.Instance.PlaySFX("explo3");
             ExplosionParticle.Play();
             StartCoroutine(Die());
         }

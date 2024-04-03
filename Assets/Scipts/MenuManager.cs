@@ -24,6 +24,7 @@ public class MenuManager : MonoBehaviour
             GameManager.Instance.justLevelFailed = false;
         }
         DiamondsText.text = GameManager.Instance.Diamonds.ToString();
+        AudioManager.Instance.PlayMusic("Menu", 0.5f);
     }
 
     public void enableLevelPanel()
