@@ -61,6 +61,7 @@ public class ObjectiveManager : MonoBehaviour
     }
     private IEnumerator MissionFailed()
     {
+        GameManager.Instance.CollectedDiamonds = 0;
         alreadyFailed = true;
         PauseManager.GetComponent<PauseManager>().canBePaused = false;
         yield return StartCoroutine(slowTimeToZero());
