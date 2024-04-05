@@ -12,6 +12,7 @@ public class AudioManager : MonoBehaviour
     public static AudioManager Instance { get; private set; }
 
     [SerializeField] private AudioSource sfxSource;
+    public AudioSource SfxSource {get => sfxSource;}
     [SerializeField] private AudioSource musicSource;
     [SerializeField] private List<AudioClip> sfxClips = new List<AudioClip>(); // Lijst van SFX clips
     [SerializeField] private List<AudioClip> musicClips = new List<AudioClip>(); // Lijst van muziek clips
@@ -49,6 +50,7 @@ public class AudioManager : MonoBehaviour
     {
         if (sfxClipDictionary.TryGetValue(name, out var clip))
         {
+            sfxSource.clip = clip;
             sfxSource.PlayOneShot(clip, volume);
         }
         else
@@ -81,11 +83,11 @@ public class AudioManager : MonoBehaviour
     {
         if (sfxClipDictionary.TryGetValue(name, out var clip))
         {
-            return sfxSource.clip == clip && sfxSource.isPlaying;
+            return (sfxSource.clip == clip && sfxSource.isPlaying);
         }
         if (musicClipDictionary.TryGetValue(name, out clip))
         {
-            return musicSource.clip == clip && musicSource.isPlaying;
+            return (musicSource.clip == clip && musicSource.isPlaying);
         }
         return false;
     }

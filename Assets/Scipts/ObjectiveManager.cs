@@ -46,7 +46,7 @@ public class ObjectiveManager : MonoBehaviour
             MissionTitleText.text = "Goto Mission";
             StartCoroutine(GotoMission());
         }
-        AudioManager.Instance.PlayMusic(music, 0.5f);
+        AudioManager.Instance.PlayMusic(music, 1.0f);
     }
     public void StartLevel()
     {

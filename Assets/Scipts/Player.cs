@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
     private float lastFrameVelocity;
     public bool isAlive = true, canMove = false;
     private bool isTrusting = false;
+    private Coroutine thrustCoroutine;
     
     [SerializeField] private Animator spriteAnimator;
     [SerializeField] private ParticleSystem Trustparticle;
@@ -182,6 +183,13 @@ public class Player : MonoBehaviour
             {
                 CinemachineShake.Instance.ShakeCamera(body.velocity.magnitude / 10, 0.1f);
                 body.AddForce(transform.up * flySpeed * Time.deltaTime * 50); // main Truster
+
+                if (!AudioManager.Instance.IsPlaying("thruststart") && !AudioManager.Instance.IsPlaying("thrustloop"))
+                {
+                    thrustCoroutine = StartCoroutine(ThrustAudio());
+                }
+
+
                 fuelLevel -= Time.deltaTime;
                 fuelSlider.value = fuelLevel;
                 StartTrustParticles();
@@ -189,8 +197,12 @@ public class Player : MonoBehaviour
         }
         else
         {
-
             AudioManager.Instance.StopSFX();
+            if (thrustCoroutine != null)
+            {
+                StopCoroutine(thrustCoroutine);
+            }
+            AudioManager.Instance.SfxSource.loop = false;
             StopTrustParticles();
         }
     }
@@ -304,6 +316,16 @@ public class Player : MonoBehaviour
 
     }
 
+    IEnumerator ThrustAudio()
+    {
+        AudioManager.Instance.PlaySFX("thruststart");
+        yield return new WaitForSeconds(6.0f);
+        AudioManager.Instance.StopSFX();
+        //enable loop on AudioManager sfx
+        AudioManager.Instance.PlaySFX("thrustloop");
+        AudioManager.Instance.SfxSource.loop = true;
+    }
+
     IEnumerator Invisible(float time)
     {
         isInvisible = true;
@@ -323,6 +345,7 @@ public class Player : MonoBehaviour
         if(isAlive)
         {
             CinemachineShake.Instance.ShakeCamera(20f, 0.2f);
+            AudioManager.Instance.StopSFX();
             AudioManager.Instance.PlaySFX("explo3");
             ExplosionParticle.Play();
             StartCoroutine(Die());
