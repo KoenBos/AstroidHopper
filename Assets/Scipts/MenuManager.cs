@@ -24,7 +24,7 @@ public class MenuManager : MonoBehaviour
             GameManager.Instance.justLevelFailed = false;
         }
         DiamondsText.text = GameManager.Instance.Diamonds.ToString();
-        AudioManager.Instance.PlayMusic("Menu", 0.5f);
+        AudioManager.Instance.PlayMusic("Menu");
     }
 
     public void enableLevelPanel()
@@ -47,6 +47,16 @@ public class MenuManager : MonoBehaviour
     public void disableUpgradePanel()
     {
         upgradePanel.SetActive(false);
+    }
+
+    public void playHoverSound()
+    {
+        AudioManager.Instance.PlaySFX("hoverselect");
+    }
+
+    public void playClickSound()
+    {
+        AudioManager.Instance.PlaySFX("accept");
     }
 
     public void quitGame()

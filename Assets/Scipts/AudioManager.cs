@@ -12,14 +12,13 @@ public class AudioManager : MonoBehaviour
     public static AudioManager Instance { get; private set; }
 
     [SerializeField] private AudioSource sfxSource;
-    public AudioSource SfxSource {get => sfxSource;}
     [SerializeField] private AudioSource musicSource;
+    [SerializeField] private AudioSource thrustSource;
     [SerializeField] private List<AudioClip> sfxClips = new List<AudioClip>(); // Lijst van SFX clips
     [SerializeField] private List<AudioClip> musicClips = new List<AudioClip>(); // Lijst van muziek clips
 
     private Dictionary<string, AudioClip> sfxClipDictionary = new Dictionary<string, AudioClip>();
     private Dictionary<string, AudioClip> musicClipDictionary = new Dictionary<string, AudioClip>();
-
     private void Awake()
     {
         if (Instance == null)
@@ -46,17 +45,14 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void PlaySFX(string name, float volume = 1.0f)
+    public void PlayThrust()
     {
-        if (sfxClipDictionary.TryGetValue(name, out var clip))
-        {
-            sfxSource.clip = clip;
-            sfxSource.PlayOneShot(clip, volume);
-        }
-        else
-        {
-            Debug.LogWarning("SFX clip not found: " + name);
-        }
+        thrustSource.Play();
+    }
+
+    public void StopThrust()
+    {
+        thrustSource.Stop();
     }
     
     public void StopSFX()
@@ -64,13 +60,12 @@ public class AudioManager : MonoBehaviour
         sfxSource.Stop();
     }
 
-    public void PlayMusic(string name, float volume = 1.0f, bool loop = true)
+    public void PlayMusic(string name)
     {
         if (musicClipDictionary.TryGetValue(name, out var clip))
         {
             musicSource.clip = clip;
-            musicSource.volume = volume;
-            musicSource.loop = loop;
+            musicSource.loop = true;
             musicSource.Play();
         }
         else
@@ -78,7 +73,18 @@ public class AudioManager : MonoBehaviour
             Debug.LogWarning("Music clip not found: " + name);
         }
     }
-
+    public void PlaySFX(string name)
+    {
+        if (sfxClipDictionary.TryGetValue(name, out var clip))
+        {
+            sfxSource.clip = clip;
+            sfxSource.PlayOneShot(clip);
+        }
+        else
+        {
+            Debug.LogWarning("SFX clip not found: " + name);
+        }
+    }
     public bool IsPlaying(string name)
     {
         if (sfxClipDictionary.TryGetValue(name, out var clip))

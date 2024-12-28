@@ -116,7 +116,7 @@ public class Alien : MonoBehaviour
 
             if(isGrounded)
             {
-                if (body.velocity.magnitude < maxWalkSpeed)
+                if (body.linearVelocity.magnitude < maxWalkSpeed)
                 {
                     body.AddForce(transform.right * horizontal * walkSpeed, ForceMode2D.Force);
                 }

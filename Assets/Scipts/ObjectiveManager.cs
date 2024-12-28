@@ -46,7 +46,7 @@ public class ObjectiveManager : MonoBehaviour
             MissionTitleText.text = "Goto Mission";
             StartCoroutine(GotoMission());
         }
-        AudioManager.Instance.PlayMusic(music, 1.0f);
+        AudioManager.Instance.PlayMusic(music);
     }
     public void StartLevel()
     {
@@ -69,6 +69,7 @@ public class ObjectiveManager : MonoBehaviour
         PauseManager.GetComponent<PauseManager>().canBePaused = false;
         yield return StartCoroutine(slowTimeToZero());
         AudioManager.Instance.StopMusic();
+        AudioManager.Instance.PlaySFX("fail");
 
         Debug.Log("Mission Failed");
         failedPanel.SetActive(true);
@@ -85,8 +86,9 @@ public class ObjectiveManager : MonoBehaviour
         PauseManager.GetComponent<PauseManager>().canBePaused = false;
         
         completedPanel.SetActive(true);
+        AudioManager.Instance.PlaySFX("complete");
        
-       yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.2f);
 
         int diamondsCollected = GameManager.Instance.CollectedDiamonds;
         int diamondsAdded = 0;
@@ -195,25 +197,27 @@ public class ObjectiveManager : MonoBehaviour
             yield return null;
         }
 
-        while (timeLeft > 0)
+        while (timeLeft > 0 && player.GetComponent<Player>().isAlive)
         {
             TimerText.text = timeLeft.ToString("F1");
             yield return new WaitForSeconds(0.1f);
             timeLeft -= 0.1f;
-            if (player.GetComponent<Player>().isAlive == false)
-            {
-                LoseReasonText.text = "You died...";
-                FailedMission();
-                yield break;
-            }
         }
-        TimerText.text = "0.0";
-        yield return StartCoroutine(CompletedMission());
+
+        if (!player.GetComponent<Player>().isAlive)
+        {
+            LoseReasonText.text = "You died...";
+            FailedMission();
+            yield break;
+        }
+
+        TimerText.text = "Survived! Go to Flag";
+        yield return StartCoroutine(GotoMission());
     }
 
     private IEnumerator GotoMission()
     {
-        while (Vector3.Distance(player.transform.position, gotoLocation.position) > 1)
+        while (Vector3.Distance(player.transform.position, gotoLocation.position) > 1 || !player.GetComponent<Player>().longGrounded)
         {
             yield return null;
         }

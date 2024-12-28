@@ -7,8 +7,10 @@ using TMPro;
 public class Player : MonoBehaviour
 {
     private Rigidbody2D body;
-    public float flySpeed, maxFlySpeed, jumpPower, crashSpeed, walkSpeed, maxWalkSpeed, rotateSpeed, fuelLevel, fuelMax, oxygenLevel, oxygenMax;
-    private bool isGrounded, longGrounded, outsideGravity, isInvisible;
+    public float flySpeed, jumpPower, crashSpeed, walkSpeed, maxWalkSpeed, maxFlySpeed, rotateSpeed, fuelLevel, fuelMax, oxygenLevel, oxygenMax;
+    private float thrustDelay;
+    private bool isGrounded, outsideGravity, isInvisible;
+    public bool longGrounded;
     [SerializeField] private TextMeshProUGUI rubyCounterText;
     private float horizontal;
     private float lastFrameVelocity;
@@ -37,9 +39,9 @@ public class Player : MonoBehaviour
 
     [SerializeField] private GameObject speedMeterArrow;
 
-
     void Start()
     {
+        thrustDelay = 0;
         body = GetComponent<Rigidbody2D>();
         fuelSlider.maxValue = fuelMax;
         fuelSlider.value = fuelLevel;
@@ -54,16 +56,19 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+
+        thrustDelay += Time.deltaTime;
+
         if (!Android)
         {
             GetMovementInput();
         }   
 
-        lastFrameVelocity = body.velocity.magnitude; //velocity van 1 frame geleden voor crash detectie
+        lastFrameVelocity = body.linearVelocity.magnitude; //velocity van 1 frame geleden voor crash detectie
 
         if (!isGrounded) //speedmeter pijl draaien
         {
-            speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(0, 180, body.velocity.magnitude / maxFlySpeed));
+            speedMeterArrow.transform.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(0, 180, body.linearVelocity.magnitude / maxFlySpeed));
         }
         else
         {
@@ -79,8 +84,8 @@ public class Player : MonoBehaviour
                 {
                     body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
                     JumpParticle.Play();
-                    //shake camera with intensity 2 and time 0.5
                     CinemachineShake.Instance.ShakeCamera(5f, 1.0f);
+                    AudioManager.Instance.PlaySFX("jump");
                     isGrounded = false;
                 }
             }
@@ -140,7 +145,7 @@ public class Player : MonoBehaviour
 
             if(isGrounded && canMove)
             {
-                if (body.velocity.magnitude < maxWalkSpeed) //lopen als je op de grond bent
+                if (body.linearVelocity.magnitude < maxWalkSpeed) //lopen als je op de grond bent
                 {
                     body.AddForce(transform.right * horizontal * walkSpeed, ForceMode2D.Force);
                 }
@@ -177,18 +182,17 @@ public class Player : MonoBehaviour
             StopRightTrustParticles();
         }
 
-        if (Input.GetKey(KeyCode.Space) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || Input.GetKey(KeyCode.W) && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0 || isTrusting && body.velocity.magnitude < maxFlySpeed && fuelLevel > 0)
+        if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W) || isTrusting) && body.linearVelocity.magnitude < maxFlySpeed && fuelLevel > 0) //Thurster
         {
             if (canMove)
             {
-                CinemachineShake.Instance.ShakeCamera(body.velocity.magnitude / 10, 0.1f);
+                CinemachineShake.Instance.ShakeCamera(body.linearVelocity.magnitude / 10, 0.1f);
                 body.AddForce(transform.up * flySpeed * Time.deltaTime * 50); // main Truster
 
-                if (!AudioManager.Instance.IsPlaying("thruststart") && !AudioManager.Instance.IsPlaying("thrustloop"))
-                {
-                    thrustCoroutine = StartCoroutine(ThrustAudio());
+                if (thrustDelay >= 4.2f){
+                    AudioManager.Instance.PlayThrust();
+                    thrustDelay = 0;
                 }
-
 
                 fuelLevel -= Time.deltaTime;
                 fuelSlider.value = fuelLevel;
@@ -197,12 +201,8 @@ public class Player : MonoBehaviour
         }
         else
         {
-            AudioManager.Instance.StopSFX();
-            if (thrustCoroutine != null)
-            {
-                StopCoroutine(thrustCoroutine);
-            }
-            AudioManager.Instance.SfxSource.loop = false;
+            AudioManager.Instance.StopThrust();
+            thrustDelay = 4.3f;
             StopTrustParticles();
         }
     }
@@ -214,6 +214,7 @@ public class Player : MonoBehaviour
             {
                 body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
                 JumpParticle.Play();
+                AudioManager.Instance.PlaySFX("jump");
                 isGrounded = false;
             }
             isTrusting = true;
@@ -231,12 +232,16 @@ public class Player : MonoBehaviour
         if (obj.CompareTag("Planet"))
         {
             outsideGravity = false;
-            body.drag = 0.2f;
+            body.linearDamping = 0.2f;
 
             float distance = Mathf.Abs(obj.GetComponent<GravityPoint>().planetRadius - Vector2.Distance(transform.position, obj.transform.position));
             if (distance < 0.6f) //dicht bij planeet = IsGrounded
             {
                 isGrounded = true;
+
+                AudioManager.Instance.StopThrust();
+                thrustDelay = 4.3f;
+
                 if (!longGrounded)
                 {
                     StartCoroutine(LongGrounded());
@@ -255,7 +260,7 @@ public class Player : MonoBehaviour
     {
         if (obj.CompareTag("Planet"))
         {
-            body.drag = 0.02f;
+            body.linearDamping = 0.02f;
             outsideGravity = true;
         }
     }
@@ -297,13 +302,14 @@ public class Player : MonoBehaviour
             StopTrustParticles();
             isAlive = false;
             playerVisual.SetActive(false);
-            body.velocity = Vector2.zero;
+            body.linearVelocity = Vector2.zero;
+            AudioManager.Instance.StopThrust();
 
             yield return new WaitForSeconds(3);
 
             AudioManager.Instance.PlaySFX("respawn");
             transform.position = respawnPoint.position;
-            body.velocity = Vector2.zero;
+            body.linearVelocity = Vector2.zero;
             fuelLevel = fuelMax;
             fuelSlider.value = fuelLevel;
             oxygenLevel = oxygenMax;
@@ -314,16 +320,6 @@ public class Player : MonoBehaviour
 
         }
 
-    }
-
-    IEnumerator ThrustAudio()
-    {
-        AudioManager.Instance.PlaySFX("thruststart");
-        yield return new WaitForSeconds(6.0f);
-        AudioManager.Instance.StopSFX();
-        //enable loop on AudioManager sfx
-        AudioManager.Instance.PlaySFX("thrustloop");
-        AudioManager.Instance.SfxSource.loop = true;
     }
 
     IEnumerator Invisible(float time)
