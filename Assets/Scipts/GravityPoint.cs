@@ -10,6 +10,8 @@ public class GravityPoint : MonoBehaviour
     public float gravityFallOffStrength = 1.0f;
     public bool isRotating = false;
     public float rotationSpeed = 1.0f;
+    public bool isAttracting = true;
+    public bool allowRefuel = false;
 
     void Update()
     {
@@ -22,17 +24,25 @@ public class GravityPoint : MonoBehaviour
 
     void OnTriggerStay2D(Collider2D obj)
     {
-        float dist = Vector2.Distance(obj.transform.position, transform.position);
-        float gravitationalPower = CalculateGravitationalPower(dist);
+        if (isAttracting)
+        {
+            float dist = Vector2.Distance(obj.transform.position, transform.position);
+            float gravitationalPower = CalculateGravitationalPower(dist);
 
-        Vector2 direction = (transform.position - obj.transform.position).normalized * gravitationalPower;
-        obj.GetComponent<Rigidbody2D>().AddForce(direction);
+            Vector2 direction = (transform.position - obj.transform.position).normalized * gravitationalPower;
+            obj.GetComponent<Rigidbody2D>().AddForce(direction);
+        }
 
-        // Rotate the player towards the planet
+        //if the object is a player and allowRefuel is true, set bool canrefuel to true in the player script
+        if (obj.CompareTag("Player") && allowRefuel)
+        {
+            obj.GetComponent<Player>().canRefuel = true;
+        }
+
+        // Rotate the player arround the planet
         if (obj.CompareTag("Player") || obj.CompareTag("Alien"))
         {
             RotateAround(obj, direction, dist);
-
         }
     }
 

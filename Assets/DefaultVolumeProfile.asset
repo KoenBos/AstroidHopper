@@ -315,7 +315,7 @@ MonoBehaviour:
   active: 1
   normalBias:
     m_OverrideState: 1
-    m_Value: 0.05
+    m_Value: 0.33
   viewBias:
     m_OverrideState: 1
     m_Value: 0.1
@@ -330,7 +330,7 @@ MonoBehaviour:
     m_Value: 1
   leakReductionMode:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 1
   minValidDotProductValue:
     m_OverrideState: 1
     m_Value: 0.1

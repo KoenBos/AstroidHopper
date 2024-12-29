@@ -10,7 +10,7 @@ public class Player : MonoBehaviour
     public float flySpeed, jumpPower, crashSpeed, walkSpeed, maxWalkSpeed, maxFlySpeed, rotateSpeed, fuelLevel, fuelMax, oxygenLevel, oxygenMax;
     private float thrustDelay;
     private bool isGrounded, outsideGravity, isInvisible;
-    public bool longGrounded;
+    public bool longGrounded, canRefuel;
     [SerializeField] private TextMeshProUGUI rubyCounterText;
     private float horizontal;
     private float lastFrameVelocity;
@@ -47,6 +47,7 @@ public class Player : MonoBehaviour
         fuelSlider.value = fuelLevel;
         oxygenSlider.maxValue = oxygenMax;
         oxygenSlider.value = oxygenLevel;
+        canRefuel = true;
     }
 
     public void enableMovement()
@@ -90,7 +91,7 @@ public class Player : MonoBehaviour
                 }
             }
             //---------------------------------Fuel---------------------------------bij tanken op de grond oxygen en fuel
-            if (longGrounded && fuelLevel < fuelMax)
+            if (longGrounded && fuelLevel < fuelMax && canRefuel)
             {
                 fuelLevel += Time.deltaTime * fuelMax / 2;
                 fuelSlider.value = fuelLevel;
@@ -252,6 +253,7 @@ public class Player : MonoBehaviour
             {
                 isGrounded = false;
                 longGrounded = false;
+                canRefuel = false;
             }
         }
     }

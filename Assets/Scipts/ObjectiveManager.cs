@@ -118,7 +118,15 @@ public class ObjectiveManager : MonoBehaviour
         Debug.Log("Mission Completed");
         yield return null;
     }
+    public void playHoverSound()
+    {
+        AudioManager.Instance.PlaySFX("hoverselect");
+    }
 
+    public void playClickSound()
+    {
+        AudioManager.Instance.PlaySFX("accept");
+    }
     private IEnumerator slowTimeToZero()
     {
         float t = 0;

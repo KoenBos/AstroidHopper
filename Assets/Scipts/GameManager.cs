@@ -47,16 +47,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void playHoverSound()
-    {
-        AudioManager.Instance.PlaySFX("hoverselect");
-    }
-
-    public void playClickSound()
-    {
-        AudioManager.Instance.PlaySFX("accept");
-    }
-
     public void LevelFailed()
     {
         CollectedDiamonds = 0;
