@@ -13,6 +13,9 @@ public class Player : MonoBehaviour
     private bool isGrounded, outsideGravity, isInvisible;
     public bool longGrounded, canRefuel;
     [SerializeField] private TextMeshProUGUI rubyCounterText;
+    [SerializeField] private Transform rocket;
+    [SerializeField] private GameObject canvas;
+
     private float horizontal;
     private float lastFrameVelocity;
     public bool isAlive = true, canMove = false;
@@ -49,6 +52,8 @@ public class Player : MonoBehaviour
         oxygenSlider.maxValue = oxygenMax;
         oxygenSlider.value = oxygenLevel;
         canRefuel = true;
+
+        StartCoroutine(StartAnimation());
     }
 
     public void enableMovement()
@@ -333,6 +338,7 @@ public class Player : MonoBehaviour
 
             AudioManager.Instance.PlaySFX("respawn");
             transform.position = respawnPoint.position;
+            transform.rotation = Quaternion.Inverse(rocket.rotation);
             body.linearVelocity = Vector2.zero;
             fuelLevel = fuelMax;
             fuelSlider.value = fuelLevel;
@@ -369,6 +375,30 @@ public class Player : MonoBehaviour
             AudioManager.Instance.PlaySFX("explo3");
             ExplosionParticle.Play();
             StartCoroutine(Die());
+        }
+    }
+
+    IEnumerator StartAnimation()
+    {
+        if(rocket != null)
+        {
+        playerVisual.SetActive(false);
+        canvas.SetActive(false);
+        AudioManager.Instance.PlaySFX("thruststart");
+        StartCoroutine(Invisible(2.8f));
+        CinemachineShake.Instance.ShakeCamera(1f, 2.7f);
+        while (isInvisible)
+        {
+            this.transform.position = rocket.position;
+            this.transform.rotation = rocket.rotation * Quaternion.Euler(0, 0, 180);
+            yield return null;
+        }
+        transform.position = respawnPoint.position;
+        AudioManager.Instance.StopSFX();
+        AudioManager.Instance.PlaySFX("explo3");
+        CinemachineShake.Instance.ShakeCamera(20f, 0.3f);
+        playerVisual.SetActive(true);
+        canvas.SetActive(true);
         }
     }
 
