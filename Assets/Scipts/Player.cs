@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     private Rigidbody2D body;
     public float flySpeed, jumpPower, crashSpeed, walkSpeed, maxWalkSpeed, maxFlySpeed, rotateSpeed, fuelLevel, fuelMax, oxygenLevel, oxygenMax;
     private float thrustDelay;
+    private float longGroundedDelay = 0.5f;
     private bool isGrounded, outsideGravity, isInvisible;
     public bool longGrounded, canRefuel;
     [SerializeField] private TextMeshProUGUI rubyCounterText;
@@ -81,20 +82,12 @@ public class Player : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space)) //Jump als je op de grond bent
             {
-                if (isGrounded)
-                {
-                    body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
-                    JumpParticle.Play();
-                    CinemachineShake.Instance.ShakeCamera(5f, 1.0f);
-                    AudioManager.Instance.PlaySFX("jump");
-                    isGrounded = false;
-                }
+                Jump();
             }
             //---------------------------------Fuel---------------------------------bij tanken op de grond oxygen en fuel
-            if (longGrounded && fuelLevel < fuelMax && canRefuel)
+            if (longGrounded && canRefuel)
             {
-                fuelLevel += Time.deltaTime * fuelMax / 2;
-                fuelSlider.value = fuelLevel;
+                Refuel();
             }
             if (fuelLevel > fuelMax) //max fuel
             {
@@ -211,14 +204,32 @@ public class Player : MonoBehaviour
     {
         if(isAlive && canMove)
         {
+            Jump();
+            isTrusting = true;
+        }
+    }
+
+    public void Jump() // Jump
+    {
+        if (isAlive && canMove)
+        {
             if (isGrounded)
             {
                 body.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
                 JumpParticle.Play();
                 AudioManager.Instance.PlaySFX("jump");
                 isGrounded = false;
+                longGrounded = false;
             }
-            isTrusting = true;
+        }
+    }
+
+    public void Refuel() // Refuel
+    {
+        if (fuelLevel < fuelMax)
+        {
+            fuelLevel += Time.deltaTime * fuelMax / 2;
+            fuelSlider.value = fuelLevel;
         }
     }
 
@@ -243,14 +254,21 @@ public class Player : MonoBehaviour
                 AudioManager.Instance.StopThrust();
                 thrustDelay = 4.3f;
 
-                if (!longGrounded)
+                longGroundedDelay += Time.deltaTime;
+
+                if (longGroundedDelay >= 0.5f)
                 {
-                    StartCoroutine(LongGrounded());
+                    longGrounded = true;
+                }
+                else
+                {
+                    longGrounded = false;
                 }
 
             }
             else
             {
+                longGroundedDelay = 0;
                 isGrounded = false;
                 longGrounded = false;
                 canRefuel = false;
@@ -262,8 +280,12 @@ public class Player : MonoBehaviour
     {
         if (obj.CompareTag("Planet"))
         {
+            longGroundedDelay = 0;
             body.linearDamping = 0.02f;
             outsideGravity = true;
+            isGrounded = false;
+            longGrounded = false;
+            canRefuel = false;
         }
     }
 
@@ -402,11 +424,5 @@ public class Player : MonoBehaviour
         {
             RightTrustparticle.Stop();
         }
-    }
-
-    IEnumerator LongGrounded() //lang op de grond voor fuel tanken
-    {
-        yield return new WaitForSeconds(0.5f);
-        longGrounded = true;
     }
 }

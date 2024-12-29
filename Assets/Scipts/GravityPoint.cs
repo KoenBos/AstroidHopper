@@ -12,6 +12,7 @@ public class GravityPoint : MonoBehaviour
     public float rotationSpeed = 1.0f;
     public bool isAttracting = true;
     public bool allowRefuel = false;
+    public bool fuelZone = false;
 
     void Update()
     {
@@ -24,12 +25,18 @@ public class GravityPoint : MonoBehaviour
 
     void OnTriggerStay2D(Collider2D obj)
     {
+
+        if (obj.CompareTag("Player") && fuelZone)
+        {
+            obj.GetComponent<Player>().Refuel();
+        }
+
+        float dist = Vector2.Distance(obj.transform.position, transform.position);
+        float gravitationalPower = CalculateGravitationalPower(dist);
+        Vector2 direction = (transform.position - obj.transform.position).normalized * gravitationalPower;
+
         if (isAttracting)
         {
-            float dist = Vector2.Distance(obj.transform.position, transform.position);
-            float gravitationalPower = CalculateGravitationalPower(dist);
-
-            Vector2 direction = (transform.position - obj.transform.position).normalized * gravitationalPower;
             obj.GetComponent<Rigidbody2D>().AddForce(direction);
         }
 
