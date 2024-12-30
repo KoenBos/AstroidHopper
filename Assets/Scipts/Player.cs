@@ -29,7 +29,7 @@ public class Player : MonoBehaviour
 
     [SerializeField] private Transform respawnPoint;
     [SerializeField] private GameObject playerVisual;
-    private bool Android = false;
+    private bool Android = true;
 
 
     [SerializeField] private ParticleSystem JumpParticle;
@@ -338,7 +338,7 @@ public class Player : MonoBehaviour
 
             AudioManager.Instance.PlaySFX("respawn");
             transform.position = respawnPoint.position;
-            transform.rotation = Quaternion.Inverse(rocket.rotation);
+            transform.rotation = rocket.rotation * Quaternion.Euler(0, 0, 180);
             body.linearVelocity = Vector2.zero;
             fuelLevel = fuelMax;
             fuelSlider.value = fuelLevel;
